@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#121212</color>
+    <string name="app_name">GymTastic</string>
+    <string name="notif_channel_desc">Recordatorios diarios</string>
+    <string name="notif_channel_name">Recordatorios GymTastic</string>
+    <style name="Theme.GymTastic" parent="Theme.Material3.DayNight.NoActionBar">
+        
+    </style>
+</resources>
