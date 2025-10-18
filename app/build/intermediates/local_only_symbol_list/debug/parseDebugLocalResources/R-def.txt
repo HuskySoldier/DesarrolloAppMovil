@@ -3,6 +3,7 @@ local
 color ic_launcher_background
 drawable gym_background
 drawable ic_launcher_foreground
+drawable map_placeholder
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name

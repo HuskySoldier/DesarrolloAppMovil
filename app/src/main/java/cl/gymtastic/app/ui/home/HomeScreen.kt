@@ -1,6 +1,7 @@
 package cl.gymtastic.app.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -8,28 +9,22 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext // ✅ nuevo
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import cl.gymtastic.app.ui.navigation.Screen
-import cl.gymtastic.app.ui.navigation.NavRoutes   // ✅ nuevo
-import cl.gymtastic.app.util.ServiceLocator      // ✅ nuevo
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.Image
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import cl.gymtastic.app.R
-
-
-
+import cl.gymtastic.app.data.datastore.MembershipPrefs
+import cl.gymtastic.app.ui.navigation.NavRoutes
+import cl.gymtastic.app.ui.navigation.Screen
+import cl.gymtastic.app.util.ServiceLocator
+import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,17 +32,38 @@ fun HomeScreen(nav: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
-    val ctx = LocalContext.current // ✅ lo usamos para logout
+    val ctx = LocalContext.current
 
-    val drawerItems = listOf(
+    // 🔐 Estado de membresía (activa o no)
+    val membership by remember { MembershipPrefs.observe(ctx) }
+        .collectAsStateWithLifecycle(initialValue = MembershipPrefs.State())
+
+    // Snackbar (útil si decides deshabilitar y avisar)
+    val snackbar = remember { SnackbarHostState() }
+
+    // Items base (siempre visibles)
+    val baseItems = listOf(
         "Home" to Screen.Home.route,
         "Planes" to Screen.Planes.route,
         "Tienda" to Screen.Store.route,
-        "Carrito" to Screen.Cart.route,
-        "Check-In" to Screen.CheckIn.route,
-        "Trainers" to Screen.Trainers.route,
-        "Cerrar sesión" to "logout" // 👈 clave para detectar logout
+        "Carrito" to Screen.Cart.route
     )
+    // Items que dependen de la membresía
+    val gatedItems = listOf(
+        "Check-In" to Screen.CheckIn.route,
+        "Trainers" to Screen.Trainers.route
+    )
+
+    // 👇 Opción A (recomendada): ocultar si no hay plan activo
+    val drawerItems =
+        if (membership.hasActivePlan) baseItems + gatedItems + listOf("Cerrar sesión" to "logout")
+        else baseItems + listOf("Cerrar sesión" to "logout")
+
+    // --------
+    // (Opción B alternativa: mostrar deshabilitado y avisar con snackbar)
+    // fun isLocked(label: String) =
+    //     (label == "Check-In" || label == "Trainers") && !membership.hasActivePlan
+    // --------
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -77,12 +93,19 @@ fun HomeScreen(nav: NavController) {
                                     scope.launch {
                                         drawerState.close()
                                         if (route == "logout") {
-                                            // ✅ Cerrar sesión y limpiar back stack
                                             ServiceLocator.auth(ctx).logout()
-                                            nav.navigate(NavRoutes.LOGIN) {
-                                                popUpTo(0)
-                                            }
+                                            nav.navigate(NavRoutes.LOGIN) { popUpTo(0) }
                                         } else {
+                                            // --------
+                                            // (Si usas Opción B deshabilitada)
+                                            // if (isLocked(label)) {
+                                            //     snackbar.showSnackbar("Activa un plan para usar $label")
+                                            // } else {
+                                            //     nav.navigate(route) { launchSingleTop = true }
+                                            // }
+                                            // --------
+
+                                            // Opción A (ocultar): navegar normal
                                             nav.navigate(route) { launchSingleTop = true }
                                         }
                                     }
@@ -99,6 +122,7 @@ fun HomeScreen(nav: NavController) {
                                     selectedTextColor = cs.primary,
                                     unselectedTextColor = cs.onSurface
                                 )
+                                // , enabled = !isLocked(label) // <- Opción B (mostrar deshabilitado)
                             )
                         }
                     }
@@ -112,14 +136,22 @@ fun HomeScreen(nav: NavController) {
                     title = { Text("Home", color = cs.onBackground) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Abrir menú", tint = cs.onBackground)
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Abrir menú",
+                                tint = cs.onBackground
+                            )
                         }
                     },
                     actions = {
                         IconButton(onClick = {
                             nav.navigate(Screen.Profile.route) { launchSingleTop = true }
                         }) {
-                            Icon(Icons.Default.AccountCircle, contentDescription = "Perfil", tint = cs.onBackground)
+                            Icon(
+                                Icons.Default.AccountCircle,
+                                contentDescription = "Perfil",
+                                tint = cs.onBackground
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -129,7 +161,8 @@ fun HomeScreen(nav: NavController) {
                         actionIconContentColor = cs.onBackground
                     )
                 )
-            }
+            },
+            snackbarHost = { SnackbarHost(snackbar) } // <- útil si usas Opción B
         ) { innerPadding ->
             HomeContent(Modifier.padding(innerPadding))
         }
@@ -139,12 +172,11 @@ fun HomeScreen(nav: NavController) {
 @Composable
 private fun HomeContent(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         // Fondo con imagen
         Image(
-            painter = painterResource(R.drawable.gym_background), // 👈 tu imagen en res/drawable
+            painter = painterResource(R.drawable.gym_background),
             contentDescription = "Fondo",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()

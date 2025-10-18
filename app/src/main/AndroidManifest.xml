@@ -1,7 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cl.gymtastic.app">
 
-    <!-- 📸 Permiso para usar la cámara -->
+    <!-- Permisos recomendados para mapas -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Permisos que ya usas -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -15,7 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GymTastic">
 
-        <!-- 📸 FileProvider para permitir guardar y usar imágenes desde la cámara -->
+        <!-- ✅ La API KEY VA AQUÍ, dentro de <application> -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDhHxmFhQIbLUFt_PvyiqBxn9RlNJZCxls" />
+
+        <!-- FileProvider cámara -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="cl.gymtastic.app.fileprovider"
@@ -26,7 +35,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- 🚀 Tu activity principal -->
+        <!-- Activity principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true">

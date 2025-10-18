@@ -67,7 +67,9 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.9.2'
 
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.35.2-beta"
-
+    // Google Maps (Compose + Play Services)
+    implementation "com.google.maps.android:maps-compose:4.4.1"
+    implementation "com.google.android.gms:play-services-maps:18.2.0"
 
     // Artefactos de Compose (sin versión explícita; la pone el BOM)
     implementation 'androidx.compose.ui:ui'

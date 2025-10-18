@@ -1,12 +1,13 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-40:12
-INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-40:12
-INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-40:12
-INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-40:12
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-49:12
+INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-49:12
+INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-49:12
+INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:1-49:12
 MERGED from [com.google.accompanist:accompanist-navigation-animation:0.36.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\37d042e5af8c04c4dcb20394f2579b07\transformed\accompanist-navigation-animation-0.36.0\AndroidManifest.xml:17:1-23:12
 MERGED from [com.google.accompanist:accompanist-permissions:0.36.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\ed7522b50c70a708a66e914a1fb679b2\transformed\accompanist-permissions-0.36.0\AndroidManifest.xml:17:1-23:12
 MERGED from [com.google.accompanist:accompanist-systemuicontroller:0.35.2-beta] C:\Users\ivanl\.gradle\caches\8.13\transforms\05129562396eb350049f0072d0b36ca1\transformed\accompanist-systemuicontroller-0.35.2-beta\AndroidManifest.xml:17:1-23:12
+MERGED from [com.google.maps.android:maps-compose:4.4.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\58a4b8f87e7c9accc65ce3c481a9edda\transformed\maps-compose-4.4.1\AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\65a758b45c229f469ec6a39dac0a7ed3\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\d60ce078d220618dbf9dbe6cfeee1921\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
 MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\933b77eadaa90159310ff358aafec9d2\transformed\coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
@@ -27,6 +28,11 @@ MERGED from [androidx.navigation:navigation-runtime:2.7.7] C:\Users\ivanl\.gradl
 MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\b8dc9b0b901a914d90e0ce70b4ba3d07\transformed\navigation-common-ktx-2.7.7\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\f99e1521b06e23fb082fae783a28a6c1\transformed\navigation-runtime-ktx-2.7.7\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-compose:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\cea28e0a33586cf9f9bcf629fc97b8fa\transformed\navigation-compose-2.7.7\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.maps.android:maps-ktx:5.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\1da8d986471fd625e592468283921cab\transformed\maps-ktx-5.0.0\AndroidManifest.xml:18:1-23:12
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:17:1-44:12
+MERGED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\6a096df5db94ea60a60dba2077314c26\transformed\play-services-tasks-18.0.1\AndroidManifest.xml:2:1-6:12
+MERGED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:16:1-26:12
 MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\ivanl\.gradle\caches\8.13\transforms\8e504c4d7dd56d072ced337c49301a2e\transformed\fragment-1.3.6\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.work:work-runtime-ktx:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\cf75d6c3c0c11bb66bc14b47d1b433ac\transformed\work-runtime-ktx-2.9.1\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:17:1-145:12
@@ -96,6 +102,7 @@ MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\ivanl\.gradle\ca
 MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\29b769d07f3c8ae51b305372a965426d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:17:1-55:12
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\26a167f7efc56e4e6235af68f7c88955\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
 MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\27f1050bb88d3374d81a448a72facf9a\transformed\tracing-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.databinding:viewbinding:7.4.2] C:\Users\ivanl\.gradle\caches\8.13\transforms\ef7da52728abcc5cfb7e1ec240709886\transformed\viewbinding-7.4.2\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\5ef195bf3b5da3c7b5f4d1ca097b6bea\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\8f0368ca60f5a61105d46e3f87da48af\transformed\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\88328215fd8fc360f2d931c3f5c111a5\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
@@ -110,25 +117,47 @@ MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\ivanl\.gradle\
 		INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:1:11-69
+uses-permission#android.permission.INTERNET
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:5:5-67
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:24:5-67
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:24:5-67
+	android:name
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:5:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:6:5-79
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:5-79
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:5-79
+	android:name
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:6:22-76
 uses-permission#android.permission.CAMERA
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:5:5-65
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:9:5-65
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:5:22-62
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:9:22-62
 uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:6:5-77
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:10:5-77
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:6:22-74
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:10:22-74
 uses-permission#android.permission.CALL_PHONE
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:7:5-69
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:11:5-69
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:7:22-66
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:11:22-66
 application
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:9:5-39:19
-INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:9:5-39:19
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:13:5-48:19
+INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:13:5-48:19
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\65a758b45c229f469ec6a39dac0a7ed3\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\65a758b45c229f469ec6a39dac0a7ed3\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\d60ce078d220618dbf9dbe6cfeee1921\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\d60ce078d220618dbf9dbe6cfeee1921\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:36:5-42:19
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:36:5-42:19
+MERGED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\6a096df5db94ea60a60dba2077314c26\transformed\play-services-tasks-18.0.1\AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\6a096df5db94ea60a60dba2077314c26\transformed\play-services-tasks-18.0.1\AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:20:5-24:19
+MERGED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:20:5-24:19
 MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:28:5-143:19
 MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:28:5-143:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.7.5] C:\Users\ivanl\.gradle\caches\8.13\transforms\cf6cfed9df8ac8096c50de298b5f6445\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
@@ -152,51 +181,57 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\ivanl\.gradle\cach
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\62d0087cfc9ca9d1eeb18dd6b23e8378\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:15:9-35
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:19:9-35
 	android:label
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:13:9-41
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:17:9-41
 	android:roundIcon
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:14:9-54
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:18:9-54
 	android:icon
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:12:9-43
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:16:9-43
 	android:allowBackup
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:11:9-35
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:15:9-35
 	android:theme
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:16:9-47
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:20:9-47
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:10:9-37
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:14:9-37
+meta-data#com.google.android.geo.API_KEY
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:23:9-25:71
+	android:value
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:25:13-68
+	android:name
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:24:13-58
 provider#androidx.core.content.FileProvider
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:19:9-27:20
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:28:9-36:20
 	android:grantUriPermissions
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:23:13-47
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:32:13-47
 	android:authorities
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:21:13-64
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:30:13-64
 	android:exported
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:22:13-37
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:31:13-37
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:20:13-62
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:29:13-62
 meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:24:13-26:54
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:33:13-35:54
 	android:resource
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:26:17-51
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:35:17-51
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:25:17-67
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:34:17-67
 activity#cl.gymtastic.app.MainActivity
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:30:9-37:20
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:39:9-46:20
 	android:exported
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:32:13-36
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:41:13-36
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:31:13-41
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:40:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:33:13-36:29
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:42:13-45:29
 action#android.intent.action.MAIN
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:34:17-69
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:43:17-69
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:34:25-66
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:43:25-66
 category#android.intent.category.LAUNCHER
-ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:35:17-77
+ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:44:17-77
 	android:name
-		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:35:27-74
+		ADDED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml:44:27-74
 uses-sdk
 INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml
@@ -207,6 +242,8 @@ MERGED from [com.google.accompanist:accompanist-permissions:0.36.0] C:\Users\iva
 MERGED from [com.google.accompanist:accompanist-permissions:0.36.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\ed7522b50c70a708a66e914a1fb679b2\transformed\accompanist-permissions-0.36.0\AndroidManifest.xml:21:5-44
 MERGED from [com.google.accompanist:accompanist-systemuicontroller:0.35.2-beta] C:\Users\ivanl\.gradle\caches\8.13\transforms\05129562396eb350049f0072d0b36ca1\transformed\accompanist-systemuicontroller-0.35.2-beta\AndroidManifest.xml:21:5-44
 MERGED from [com.google.accompanist:accompanist-systemuicontroller:0.35.2-beta] C:\Users\ivanl\.gradle\caches\8.13\transforms\05129562396eb350049f0072d0b36ca1\transformed\accompanist-systemuicontroller-0.35.2-beta\AndroidManifest.xml:21:5-44
+MERGED from [com.google.maps.android:maps-compose:4.4.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\58a4b8f87e7c9accc65ce3c481a9edda\transformed\maps-compose-4.4.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.maps.android:maps-compose:4.4.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\58a4b8f87e7c9accc65ce3c481a9edda\transformed\maps-compose-4.4.1\AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\65a758b45c229f469ec6a39dac0a7ed3\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\65a758b45c229f469ec6a39dac0a7ed3\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\d60ce078d220618dbf9dbe6cfeee1921\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
@@ -247,6 +284,16 @@ MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] C:\Users\ivanl\.g
 MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\f99e1521b06e23fb082fae783a28a6c1\transformed\navigation-runtime-ktx-2.7.7\AndroidManifest.xml:5:5-44
 MERGED from [androidx.navigation:navigation-compose:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\cea28e0a33586cf9f9bcf629fc97b8fa\transformed\navigation-compose-2.7.7\AndroidManifest.xml:5:5-44
 MERGED from [androidx.navigation:navigation-compose:2.7.7] C:\Users\ivanl\.gradle\caches\8.13\transforms\cea28e0a33586cf9f9bcf629fc97b8fa\transformed\navigation-compose-2.7.7\AndroidManifest.xml:5:5-44
+MERGED from [com.google.maps.android:maps-ktx:5.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\1da8d986471fd625e592468283921cab\transformed\maps-ktx-5.0.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.maps.android:maps-ktx:5.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\1da8d986471fd625e592468283921cab\transformed\maps-ktx-5.0.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\6a096df5db94ea60a60dba2077314c26\transformed\play-services-tasks-18.0.1\AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\6a096df5db94ea60a60dba2077314c26\transformed\play-services-tasks-18.0.1\AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:18:5-43
 MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\ivanl\.gradle\caches\8.13\transforms\8e504c4d7dd56d072ced337c49301a2e\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\ivanl\.gradle\caches\8.13\transforms\8e504c4d7dd56d072ced337c49301a2e\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.work:work-runtime-ktx:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\cf75d6c3c0c11bb66bc14b47d1b433ac\transformed\work-runtime-ktx-2.9.1\AndroidManifest.xml:20:5-44
@@ -385,6 +432,8 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\ivanl\.gradle\cach
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\26a167f7efc56e4e6235af68f7c88955\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
 MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\27f1050bb88d3374d81a448a72facf9a\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\27f1050bb88d3374d81a448a72facf9a\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.databinding:viewbinding:7.4.2] C:\Users\ivanl\.gradle\caches\8.13\transforms\ef7da52728abcc5cfb7e1ec240709886\transformed\viewbinding-7.4.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.databinding:viewbinding:7.4.2] C:\Users\ivanl\.gradle\caches\8.13\transforms\ef7da52728abcc5cfb7e1ec240709886\transformed\viewbinding-7.4.2\AndroidManifest.xml:5:5-44
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\5ef195bf3b5da3c7b5f4d1ca097b6bea\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\5ef195bf3b5da3c7b5f4d1ca097b6bea\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\8f0368ca60f5a61105d46e3f87da48af\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
@@ -399,14 +448,42 @@ MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\ivanl\.gradle\
 		INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\src\main\AndroidManifest.xml
+uses-feature#0x00020000
+ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:26:5-28:35
+	android:glEsVersion
+		ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:27:9-41
+	android:required
+		ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:28:9-32
+queries
+ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:30:5-34:15
+package#com.google.android.apps.maps
+ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:9-64
+	android:name
+		ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:18-61
+uses-library#org.apache.http.legacy
+ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:39:9-41:40
+	android:required
+		ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:41:13-37
+	android:name
+		ADDED from [com.google.android.gms:play-services-maps:18.2.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\95230bc1d31cbf8b09e7c34e57674414\transformed\play-services-maps-18.2.0\AndroidManifest.xml:40:13-50
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\84abf00784488b8f4f1abb4364f6d352\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:21:9-23:69
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:23:13-66
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.0.0] C:\Users\ivanl\.gradle\caches\8.13\transforms\fc9f6ec4df3a70141f8889c117fb528b\transformed\play-services-basement-18.0.0\AndroidManifest.xml:22:13-58
 uses-permission#android.permission.WAKE_LOCK
 ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:23:5-68
 	android:name
 		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:23:22-65
-uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:5-79
-	android:name
-		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:22-76
 uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
 ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\ivanl\.gradle\caches\8.13\transforms\37e927421f8596d76ee0c81abaf02f92\transformed\work-runtime-2.9.1\AndroidManifest.xml:25:5-81
 	android:name

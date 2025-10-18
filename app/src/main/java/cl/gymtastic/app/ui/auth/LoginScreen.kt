@@ -24,12 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -125,12 +129,30 @@ fun LoginScreen(nav: NavController) {
                         .padding(horizontal = 20.dp, vertical = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "GymTastic",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = cs.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    listOf(Color.Black, cs.primary)
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "GymTastic",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = FontFamily.SansSerif,
+                                letterSpacing = 2.sp
+                            ),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
 
                     Spacer(Modifier.height(8.dp))
                     Text(

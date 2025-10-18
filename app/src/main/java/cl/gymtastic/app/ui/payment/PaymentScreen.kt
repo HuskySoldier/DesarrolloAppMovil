@@ -3,6 +3,7 @@ package cl.gymtastic.app.ui.payment
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -12,13 +13,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cl.gymtastic.app.R
+import cl.gymtastic.app.data.datastore.MembershipPrefs
+import cl.gymtastic.app.data.local.SedesRepo
 import cl.gymtastic.app.ui.navigation.Screen
 import cl.gymtastic.app.util.ServiceLocator
-import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,21 +37,32 @@ fun PaymentScreen(nav: NavController) {
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
 
-    // Métodos disponibles
+    // ⬇️ Cambia a true cuando tengas API key configurada en el Manifest
+    val useGoogleMap = false
+
     val metodos = listOf("Débito", "Crédito", "Transferencia", "Efectivo")
     var metodo by remember { mutableStateOf(metodos.first()) }
-    var expanded by remember { mutableStateOf(false) }
+    var metodoExpanded by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
 
-    // Total del carrito
+    // Carrito
     val cartFlow = remember { ServiceLocator.cart(ctx).observeCart() }
     val items by cartFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val total = items.sumOf { it.qty * it.unitPrice }.toInt()
 
-    // Fondo con gradiente
-    val bg = Brush.verticalGradient(
-        listOf(cs.primary.copy(alpha = 0.22f), cs.surface)
-    )
+    // Sedes
+    val sedes = SedesRepo.sedes
+    var sedeExpanded by remember { mutableStateOf(false) }
+    var selectedIndex by remember { mutableStateOf(0) }
+    val sede = sedes[selectedIndex]
+    val sedeLatLng = LatLng(sede.lat, sede.lng)
+
+    // Mapa
+    val cameraState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(sedeLatLng, 14f)
+    }
+
+    val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
 
     Scaffold(
         topBar = {
@@ -72,8 +93,7 @@ fun PaymentScreen(nav: NavController) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = cs.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    modifier = Modifier
-                        .fillMaxWidth(0.95f)
+                    modifier = Modifier.fillMaxWidth(0.95f)
                 ) {
                     Column(
                         modifier = Modifier
@@ -83,49 +103,114 @@ fun PaymentScreen(nav: NavController) {
                     ) {
                         Text("Pago simulado", style = MaterialTheme.typography.headlineSmall)
 
-                        // Resumen de compra
+                        // Resumen
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text("Productos en carrito: ${items.size}", color = cs.onSurfaceVariant)
-                            Text("Total: CLP $total", style = MaterialTheme.typography.titleMedium, color = cs.primary)
+                            Text(
+                                "Total: CLP $total",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = cs.primary
+                            )
                         }
 
-                        // Selector de método de pago (Material 3)
+                        // Método de pago
                         ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = !expanded }
+                            expanded = metodoExpanded,
+                            onExpandedChange = { metodoExpanded = !metodoExpanded }
                         ) {
                             TextField(
                                 value = metodo,
                                 onValueChange = {},
                                 readOnly = true,
                                 label = { Text("Método de pago") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = metodoExpanded)
+                                },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                                 modifier = Modifier
                                     .menuAnchor()
                                     .fillMaxWidth()
                             )
                             ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
+                                expanded = metodoExpanded,
+                                onDismissRequest = { metodoExpanded = false }
                             ) {
                                 metodos.forEach { m ->
                                     DropdownMenuItem(
                                         text = { Text(m) },
-                                        onClick = {
-                                            metodo = m
-                                            expanded = false
-                                        }
+                                        onClick = { metodo = m; metodoExpanded = false }
                                     )
                                 }
                             }
                         }
 
-                        Spacer(Modifier.height(8.dp))
+                        // Sede
+                        ExposedDropdownMenuBox(
+                            expanded = sedeExpanded,
+                            onExpandedChange = { sedeExpanded = !sedeExpanded }
+                        ) {
+                            TextField(
+                                value = "${sede.nombre} • ${sede.direccion}",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Sede") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = sedeExpanded)
+                                },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = sedeExpanded,
+                                onDismissRequest = { sedeExpanded = false }
+                            ) {
+                                sedes.forEachIndexed { idx, s ->
+                                    DropdownMenuItem(
+                                        text = { Text("${s.nombre} • ${s.direccion}") },
+                                        onClick = {
+                                            selectedIndex = idx
+                                            sedeExpanded = false
+                                            scope.launch {
+                                                cameraState.animate(
+                                                    update = CameraUpdateFactory.newLatLngZoom(
+                                                        LatLng(s.lat, s.lng), 14f
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        //cambiar useGoogleMap por true cuando pague la api
+                        // Mapa (o placeholder si no hay API key)
+                        Box(Modifier.fillMaxWidth().height(180.dp)) {
+                            if (useGoogleMap) {
+                                GoogleMap(
+                                    modifier = Modifier.fillMaxSize(),
+                                    cameraPositionState = cameraState
+                                ) {
+                                    Marker(
+                                        state = MarkerState(position = sedeLatLng),
+                                        title = sede.nombre,
+                                        snippet = sede.direccion
+                                    )
+                                }
+                            } else {
+                                Image(
+                                    painter = painterResource(R.drawable.map_placeholder),
+                                    contentDescription = "Mapa sede",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
 
-                        // Botones acción
+                        // Acciones
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             OutlinedButton(
@@ -135,12 +220,33 @@ fun PaymentScreen(nav: NavController) {
 
                             Button(
                                 onClick = {
+                                    if (total <= 0) return@Button
                                     loading = true
                                     scope.launch {
-                                        // Simular pago: vaciar carrito
-                                        ServiceLocator.cart(ctx).clear()
-                                        loading = false
-                                        nav.navigate(Screen.PaymentSuccess.route) { launchSingleTop = true }
+                                        try {
+                                            // Simular pago: limpiar carrito + habilitar plan y sede
+                                            ServiceLocator.cart(ctx).clear()
+                                            MembershipPrefs.setActiveWithSede(
+                                                ctx,
+                                                id = sede.id,
+                                                name = sede.nombre,
+                                                lat = sede.lat,
+                                                lng = sede.lng
+                                            )
+
+                                            // Navegar a pantalla de éxito
+                                            nav.navigate(Screen.PaymentSuccess.route) {
+                                                launchSingleTop = true
+                                                // popUpTo(...) si quieres limpiar backstack parcial
+                                            }
+                                        } catch (e: Exception) {
+                                            // Fallback seguro (volver al home si algo falla)
+                                            nav.navigate(cl.gymtastic.app.ui.navigation.NavRoutes.HOME) {
+                                                popUpTo(0)
+                                            }
+                                        } finally {
+                                            loading = false
+                                        }
                                     }
                                 },
                                 enabled = !loading && total > 0,
@@ -149,16 +255,17 @@ fun PaymentScreen(nav: NavController) {
                                 if (loading) {
                                     CircularProgressIndicator(
                                         strokeWidth = 2.dp,
-                                        modifier = Modifier.size(18.dp).padding(end = 8.dp)
+                                        modifier = Modifier
+                                            .size(18.dp)
+                                            .padding(end = 8.dp)
                                     )
                                 }
                                 Text(if (loading) "Procesando..." else "Pagar")
                             }
                         }
 
-                        // Nota
                         Text(
-                            "Tus datos no serán procesados realmente. Esta es una simulación.",
+                            "Tu plan se asociará a la sede seleccionada.",
                             style = MaterialTheme.typography.bodySmall,
                             color = cs.onSurfaceVariant
                         )

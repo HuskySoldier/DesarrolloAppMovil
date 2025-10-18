@@ -2,36 +2,33 @@ package cl.gymtastic.app.ui.payment
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import cl.gymtastic.app.ui.navigation.goHome
+import cl.gymtastic.app.ui.navigation.NavRoutes
 
 @Composable
 fun PaymentSuccessScreen(nav: NavController) {
     Scaffold { padding ->
-        Column(
+        Box(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text("¡Gracias por tu compra!", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(8.dp))
-            Text("Tu pedido ha sido procesado correctamente.")
-
-            Spacer(Modifier.height(24.dp))
-            Row {
-                Button(onClick = { nav.goHome() }) {
-                    Text("Volver al Home")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("¡Suscripción activada!", style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(8.dp))
+                Text("Tu plan quedó asociado a la sede elegida.")
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = {
+                    nav.navigate(NavRoutes.HOME) { popUpTo(0) }
+                }) {
+                    Text("Ir al Home")
                 }
-                Spacer(Modifier.width(12.dp))
-                // Si luego tienes “Pedidos”, puedes navegar ahí:
-                // Button(onClick = { nav.navigate(Screen.Orders.route) }) { Text("Ver pedidos") }
             }
         }
     }
