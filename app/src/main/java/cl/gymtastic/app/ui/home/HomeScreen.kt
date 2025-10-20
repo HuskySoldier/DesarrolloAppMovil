@@ -35,6 +35,8 @@ fun HomeScreen(nav: NavController) {
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
     val ctx = LocalContext.current
+    val currentRoute = nav.currentBackStackEntryFlow.collectAsState(initial = nav.currentBackStackEntry).value?.destination?.route
+
 
     // Estado de membresía
     val membership by remember { MembershipPrefs.observe(ctx) }
@@ -52,9 +54,12 @@ fun HomeScreen(nav: NavController) {
         "Check-In" to Screen.CheckIn.route,
         "Trainers" to Screen.Trainers.route
     )
-    val drawerItems =
-        if (membership.hasActivePlan) baseItems + gatedItems + listOf("Cerrar sesión" to "logout")
-        else baseItems + listOf("Cerrar sesión" to "logout")
+    val drawerItems = buildList {
+        val base = if (membership.hasActivePlan) baseItems + gatedItems else baseItems
+        addAll(base.filter { it.second != currentRoute })  // 👈 FILTRA el actual
+        add("Cerrar sesión" to "logout")
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,

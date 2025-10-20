@@ -12,15 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import cl.gymtastic.app.data.datastore.MembershipPrefs
 import cl.gymtastic.app.data.local.entity.ProductEntity
-import cl.gymtastic.app.ui.navigation.NavRoutes
+import cl.gymtastic.app.ui.navigation.Screen   // ✅ usa Screen.* en vez de NavRoutes
 import cl.gymtastic.app.util.ServiceLocator
 import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalContext
-import cl.gymtastic.app.data.datastore.MembershipPrefs
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,14 +31,14 @@ fun PlanesScreen(nav: NavController) {
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
 
+    // ✅ requiere repo/DAO con observePlanes()
     val planesFlow = remember { ServiceLocator.products(ctx).observePlanes() }
     val planes by planesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    // ⬇️ Observa el estado de la membresía
+    // Estado de membresía
     val membership by remember { MembershipPrefs.observe(ctx) }
         .collectAsStateWithLifecycle(initialValue = MembershipPrefs.State())
 
-    // ⬇️ Calcula días restantes de forma segura
     val remainingDays: Long? = remember(membership.planEndMillis) {
         membership.planEndMillis?.let { end ->
             val diff = end - System.currentTimeMillis()
@@ -46,7 +46,7 @@ fun PlanesScreen(nav: NavController) {
         }
     }
 
-    // Política: permitir comprar si NO hay plan activo o si faltan ≤ 3 días para que termine
+    // Política de compra
     val canBuy = !membership.hasActivePlan || ((remainingDays ?: 0L) <= 3L)
 
     val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.20f), cs.surface))
@@ -56,9 +56,7 @@ fun PlanesScreen(nav: NavController) {
             TopAppBar(
                 title = { Text("Planes", color = cs.onBackground) },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        nav.navigate(NavRoutes.HOME) { launchSingleTop = true }
-                    }) {
+                    IconButton(onClick = { nav.popBackStack() }) { // ✅ back real
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Volver", tint = cs.onBackground)
                     }
                 },
@@ -78,14 +76,10 @@ fun PlanesScreen(nav: NavController) {
                 .padding(padding)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Text(
-                "Elige tu plan",
-                style = MaterialTheme.typography.titleMedium,
-                color = cs.onSurfaceVariant
-            )
+            Text("Elige tu plan", style = MaterialTheme.typography.titleMedium, color = cs.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
 
-            // 🔔 Banner si hay plan activo y aún faltan más de 3 días
+            // Banner si aún faltan >3 días
             if (membership.hasActivePlan && (remainingDays ?: 0L) > 3L) {
                 ElevatedCard(
                     colors = CardDefaults.elevatedCardColors(containerColor = cs.surfaceVariant),
@@ -111,6 +105,7 @@ fun PlanesScreen(nav: NavController) {
             ) {
                 items(planes.size) { idx ->
                     val p: ProductEntity = planes[idx]
+                    val unitPrice = p.precio.toInt() // ✅ carrito usa Int
 
                     ElevatedCard(
                         shape = RoundedCornerShape(20.dp),
@@ -120,7 +115,6 @@ fun PlanesScreen(nav: NavController) {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(20.dp))
                             .clickable {
-                                // Si no puede comprar, muestra aviso
                                 if (!canBuy) {
                                     scope.launch {
                                         snackbar.showSnackbar(
@@ -130,11 +124,10 @@ fun PlanesScreen(nav: NavController) {
                                     }
                                     return@clickable
                                 }
-                                // Si puede comprar: agregar y navegar a pago
                                 scope.launch {
-                                    ServiceLocator.cart(ctx).add(p.id, 1, p.precio)
+                                    ServiceLocator.cart(ctx).add(p.id, 1, unitPrice) // ✅ Int
                                     snackbar.showSnackbar("Agregado: ${p.nombre}")
-                                    nav.navigate(NavRoutes.PAYMENT) { launchSingleTop = true }
+                                    nav.navigate(Screen.Payment.route) { launchSingleTop = true } // ✅ ruta correcta
                                 }
                             }
                     ) {
@@ -145,11 +138,7 @@ fun PlanesScreen(nav: NavController) {
                         ) {
                             Text(p.nombre, style = MaterialTheme.typography.titleLarge)
                             Spacer(Modifier.height(6.dp))
-                            Text(
-                                "CLP ${p.precio.toInt()}",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = cs.primary
-                            )
+                            Text("CLP ${unitPrice}", style = MaterialTheme.typography.titleMedium, color = cs.primary)
                             Spacer(Modifier.height(12.dp))
                             Row(
                                 Modifier.fillMaxWidth(),
@@ -164,7 +153,7 @@ fun PlanesScreen(nav: NavController) {
                                                 )
                                                 return@launch
                                             }
-                                            ServiceLocator.cart(ctx).add(p.id, 1, p.precio)
+                                            ServiceLocator.cart(ctx).add(p.id, 1, unitPrice) // ✅ Int
                                             snackbar.showSnackbar("Agregado al carrito")
                                         }
                                     },
@@ -181,8 +170,8 @@ fun PlanesScreen(nav: NavController) {
                                                 )
                                                 return@launch
                                             }
-                                            ServiceLocator.cart(ctx).add(p.id, 1, p.precio)
-                                            nav.navigate(NavRoutes.PAYMENT) { launchSingleTop = true }
+                                            ServiceLocator.cart(ctx).add(p.id, 1, unitPrice) // ✅ Int
+                                            nav.navigate(Screen.Payment.route) { launchSingleTop = true } // ✅
                                         }
                                     },
                                     enabled = canBuy,

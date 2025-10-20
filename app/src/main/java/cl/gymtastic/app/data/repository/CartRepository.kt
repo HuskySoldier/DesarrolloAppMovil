@@ -7,9 +7,13 @@ import cl.gymtastic.app.data.local.entity.CartItemEntity
 class CartRepository(context: Context) {
     private val db = GymTasticDatabase.get(context)
     fun observeCart() = db.cart().observeAll()
-    suspend fun add(productId: Long, qty: Int, unitPrice: Double) {
+    suspend fun add(productId: Long, qty: Int, unitPrice: Int) {
         db.cart().upsert(CartItemEntity(productId = productId, qty = qty, unitPrice = unitPrice))
     }
     suspend fun clear() = db.cart().clear()
     suspend fun remove(item: CartItemEntity) = db.cart().delete(item)
+
+    suspend fun removeByProductIds(ids: List<Long>) {
+        if (ids.isNotEmpty()) db.cart().removeByProductIds(ids)
+    }
 }

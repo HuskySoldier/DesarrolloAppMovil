@@ -12,4 +12,5 @@ object NavRoutes {
     const val TRAINERS = "trainers"
     const val BOOKING = "booking"
     const val PROFILE = "profile"
+    const val PAYMENT_SUCCESS = "payment_success?plan={plan}"
 }

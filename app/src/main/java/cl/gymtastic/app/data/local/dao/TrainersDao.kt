@@ -11,4 +11,7 @@ interface TrainersDao {
 
     @Query("SELECT * FROM trainers")
     fun observeAll(): Flow<List<TrainerEntity>>
+
+    @Query("SELECT COUNT(*) FROM trainers")
+    suspend fun count(): Int
 }

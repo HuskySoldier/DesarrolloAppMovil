@@ -10,26 +10,32 @@ import androidx.navigation.NavController
 import cl.gymtastic.app.ui.navigation.NavRoutes
 
 @Composable
-fun PaymentSuccessScreen(nav: NavController) {
-    Scaffold { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("¡Suscripción activada!", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(8.dp))
-                Text("Tu plan quedó asociado a la sede elegida.")
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = {
-                    nav.navigate(NavRoutes.HOME) { popUpTo(0) }
-                }) {
-                    Text("Ir al Home")
-                }
-            }
+
+
+fun PaymentSuccessScreen(nav: NavController, planActivated: Boolean) {
+    val cs = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            if (planActivated) "¡Membresía activada! 🎉" else "¡Compra completada! 🛍️",
+            style = MaterialTheme.typography.headlineSmall,
+            color = cs.primary
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            if (planActivated)
+                "Ya puedes usar Check-In y agendar con Trainers."
+            else
+                "Gracias por tu compra. Tus productos estarán disponibles en tu retiro/envío.",
+            color = cs.onSurfaceVariant
+        )
+        Spacer(Modifier.height(20.dp))
+        Button(onClick = { nav.navigate("home") { popUpTo(0) } }) {
+            Text("Volver al Home")
         }
     }
 }
+

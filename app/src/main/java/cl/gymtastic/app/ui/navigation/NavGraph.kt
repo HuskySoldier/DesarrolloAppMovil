@@ -1,4 +1,3 @@
-
 package cl.gymtastic.app.ui.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -6,30 +5,37 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import androidx.navigation.navArgument
-import androidx.navigation.NavController
 
+// ===== Rutas (Opción A: todo hijo directo del NavHost raíz) =====
 sealed class Screen(val route: String) {
-    data object Login : Screen("login")
+    data object Login    : Screen("login")
     data object Register : Screen("register")
-    data object Home : Screen("home")
-    data object Planes : Screen("planes")
-    data object Payment : Screen("payment")
-    data object Store : Screen("store")
-    data object Cart : Screen("cart")
-    data object CheckIn : Screen("checkin")
+    data object Home     : Screen("home")
+    data object Planes   : Screen("planes")
+    data object Payment  : Screen("payment")
+    data object Store    : Screen("store")
+    data object Cart     : Screen("cart")
+    data object CheckIn  : Screen("checkin")
     data object Trainers : Screen("trainers")
+    data object Profile  : Screen("profile")
 
-    data object PaymentSuccess : Screen("payment_success")
+    // payment_success con query opcional ?plan=
+    data object PaymentSuccess : Screen("payment_success") {
+        fun withPlan(plan: Boolean) = "payment_success?plan=$plan"
+        const val routeWithArg = "payment_success?plan={plan}"
+    }
+
+    // Booking con query trainerId
     data object Booking : Screen("booking?trainerId={trainerId}") {
         fun routeWith(trainerId: Long?) =
             if (trainerId != null) "booking?trainerId=$trainerId" else "booking?trainerId=-1"
     }
-    data object Profile : Screen("profile")
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -46,8 +52,10 @@ fun NavGraph(
 
     AnimatedNavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        route = "root" // opcional, ayuda a estructurar popUpTo
     ) {
+        // ======= Hijos directos del NavHost raíz =======
 
         composable(
             route = Screen.Login.route,
@@ -153,17 +161,28 @@ fun NavGraph(
             popExitTransition = { exitRight() }
         ) {
             val trainerId = it.arguments?.getLong("trainerId") ?: -1L
-            cl.gymtastic.app.ui.booking.BookingScreen(navController /* , trainerId */)
+            cl.gymtastic.app.ui.booking.BookingScreen(navController /*, trainerId*/)
         }
 
+        // ÚNICA definición de payment_success con arg opcional plan
         composable(
-            route = Screen.PaymentSuccess.route,
+            route = Screen.PaymentSuccess.routeWithArg,
+            arguments = listOf(
+                navArgument("plan") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            ),
             enterTransition = { enterRight() },
             exitTransition = { exitLeft() },
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
-        ) {
-            cl.gymtastic.app.ui.payment.PaymentSuccessScreen(navController)
+        ) { backStackEntry ->
+            val planActivated = backStackEntry.arguments?.getBoolean("plan") ?: false
+            cl.gymtastic.app.ui.payment.PaymentSuccessScreen(
+                nav = navController,
+                planActivated = planActivated
+            )
         }
 
         composable(
@@ -175,10 +194,10 @@ fun NavGraph(
         ) {
             cl.gymtastic.app.ui.profile.ProfileScreen(navController)
         }
-
     }
 }
 
+// ===== Helpers de navegación (centralizados y sin strings sueltas) =====
 fun NavController.goToBooking(trainerId: Long? = null) {
     navigate(Screen.Booking.routeWith(trainerId))
 }
@@ -186,10 +205,27 @@ fun NavController.goToBooking(trainerId: Long? = null) {
 fun NavController.goHome(clearStack: Boolean = true) {
     if (clearStack) {
         navigate(Screen.Home.route) {
-            popUpTo(graph.startDestinationId) { inclusive = true }
+            popUpTo(0) { inclusive = true }  // limpia todo el back stack
             launchSingleTop = true
         }
     } else {
         navigate(Screen.Home.route)
+    }
+}
+
+fun NavController.goLogin(clearStack: Boolean = true) {
+    if (clearStack) {
+        navigate(Screen.Login.route) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+    } else {
+        navigate(Screen.Login.route)
+    }
+}
+
+fun NavController.goPaymentSuccess(planActivated: Boolean) {
+    navigate(Screen.PaymentSuccess.withPlan(planActivated)) {
+        launchSingleTop = true
     }
 }

@@ -9,22 +9,29 @@ class AuthRepository(private val context: Context) {
     private val db = GymTasticDatabase.get(context)
     private val prefs = SessionPrefs(context)
 
+    // funciones auxiliares
+    private fun normEmail(raw: String) = raw.trim().lowercase()
+    private fun hash(raw: String) = raw.trim().hashCode().toString()
+
     suspend fun register(email: String, password: String, nombre: String): Boolean {
-        val existing = db.users().findByEmail(email)
+        val e = normEmail(email)
+        val existing = db.users().findByEmail(e)
         if (existing != null) return false
         db.users().insert(
             UserEntity(
-                email = email,
-                passHash = password.hashCode().toString(),
-                nombre = nombre
+                email = e,
+                passHash = hash(password),
+                nombre = nombre,
+                rol = "user"
             )
         )
         return true
     }
 
     suspend fun login(email: String, password: String): Boolean {
-        val u = db.users().findByEmail(email) ?: return false
-        if (u.passHash == password.hashCode().toString()) {
+        val e = normEmail(email)
+        val u = db.users().findByEmail(e) ?: return false
+        if (u.passHash == hash(password)) {
             prefs.setUser(u.id.toInt(), "local-token-${u.id}")
             return true
         }
@@ -32,7 +39,6 @@ class AuthRepository(private val context: Context) {
     }
 
     suspend fun logout() {
-        // ✅ Limpiar los datos de sesión almacenados
         prefs.clear()
     }
 

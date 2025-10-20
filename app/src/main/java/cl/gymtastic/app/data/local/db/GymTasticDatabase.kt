@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
         UserEntity::class, ProductEntity::class, CartItemEntity::class,
         AttendanceEntity::class, TrainerEntity::class, BookingEntity::class
     ],
-    version = 2, // ⬅️ subimos la versión porque cambió el esquema (nueva columna)
+    version = 3, // nos quedamos en 3
     exportSchema = false
 )
 abstract class GymTasticDatabase : RoomDatabase() {
@@ -31,57 +31,90 @@ abstract class GymTasticDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: GymTasticDatabase? = null
 
-        // ✅ Migración 1→2: agrega columna checkOutTimestamp (INTEGER, admite NULL)
+        // 1 -> 2: columna nueva en attendance
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE attendance ADD COLUMN checkOutTimestamp INTEGER")
             }
         }
 
+        // 2 -> 3: sin cambios de esquema (no-op)
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) { /* no-op */ }
+        }
+
         fun get(context: Context): GymTasticDatabase {
             return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(context, GymTasticDatabase::class.java, "gymtastic.db")
-                    .addMigrations(MIGRATION_1_2)           // ⬅️ aplica migración sin perder datos
-                    .fallbackToDestructiveMigration()       // ⬅️ útil en desarrollo si cambias más cosas
-                    .addCallback(object: Callback(){
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                // Seed inicial
-                                val daoUsers = get(context).users()
-                                if (daoUsers.count() == 0) {
-                                    daoUsers.insert(
-                                        UserEntity(
-                                            email = "admin@gymtastic.cl",
-                                            passHash = "admin123".hashCode().toString(),
-                                            nombre = "Administrador",
-                                            rol = "admin"
-                                        )
-                                    )
-                                }
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    GymTasticDatabase::class.java,
+                    "gymtastic.db"
+                )
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    // .fallbackToDestructiveMigration() // solo si quieres limpiar en debug
+                    .build()
 
-                                val daoProducts = get(context).products()
-                                daoProducts.insertAll(
-                                    listOf(
-                                        ProductEntity(nombre="Plan Mensual", precio=19990.0, tipo="plan"),
-                                        ProductEntity(nombre="Plan Trimestral", precio=54990.0, tipo="plan"),
-                                        ProductEntity(nombre="Polera Gym", precio=12990.0, tipo="merch", stock=50),
-                                        ProductEntity(nombre="Botella", precio=6990.0, tipo="merch", stock=80)
-                                    )
-                                )
+                INSTANCE = instance
 
-                                val daoTrainers = get(context).trainers()
-                                daoTrainers.insertAll(
-                                    listOf(
-                                        TrainerEntity(nombre="Ana Pérez", fono="+56911111111", email="ana@gymtastic.cl", especialidad="Funcional"),
-                                        TrainerEntity(nombre="Luis Gómez", fono="+56922222222", email="luis@gymtastic.cl", especialidad="Hipertrofia")
-                                    )
-                                )
-                            }
-                        }
-                    })
-                    .build().also { INSTANCE = it }
+                // ✅ Seed POST-build, sin llamar recursivamente a get()
+                CoroutineScope(Dispatchers.IO).launch {
+                    seedIfNeeded(instance)
+                }
+
+                instance
+            }
+        }
+
+        private suspend fun seedIfNeeded(db: GymTasticDatabase) {
+            // Usuarios
+            val userCount = try { db.users().count() } catch (_: Exception) { 0 }
+            if (userCount == 0) {
+                db.users().insert(
+                    UserEntity(
+                        // normalizado en minúsculas
+                        email = "admin@gymtastic.cl",
+                        // mismo método que usa AuthRepository (hashCode de String.trim())
+                        passHash = "admin123".trim().hashCode().toString(),
+                        nombre = "Administrador",
+                        rol = "admin"
+                    )
+                )
+            }
+
+            // Productos
+            val products = try { db.products().getAll() } catch (_: Exception) { emptyList() }
+            if (products.isEmpty()) {
+                db.products().insertAll(
+                    listOf(
+                        ProductEntity(nombre = "Plan Mensual", precio = 19990.0, tipo = "plan"),
+                        ProductEntity(nombre = "Plan Trimestral", precio = 54990.0, tipo = "plan"),
+                        ProductEntity(nombre = "Polera Gym", precio = 12990.0, tipo = "merch", stock = 50),
+                        ProductEntity(nombre = "Botella", precio = 6990.0, tipo = "merch", stock = 80)
+                    )
+                )
+            }
+
+            // Trainers
+            val trainersCount = try { db.trainers().count() } catch (_: Exception) { 0 }
+            if (trainersCount == 0) {
+                db.trainers().insertAll(
+                    listOf(
+                        TrainerEntity(
+                            nombre = "Ana Pérez",
+                            fono = "+56911111111",
+                            email = "ana@gymtastic.cl",
+                            especialidad = "Funcional"
+                        ),
+                        TrainerEntity(
+                            nombre = "Luis Gómez",
+                            fono = "+56922222222",
+                            email = "luis@gymtastic.cl",
+                            especialidad = "Hipertrofia"
+                        )
+                    )
+                )
             }
         }
     }
 }
+
