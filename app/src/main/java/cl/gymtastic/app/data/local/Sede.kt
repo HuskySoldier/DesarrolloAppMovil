@@ -2,7 +2,7 @@ package cl.gymtastic.app.data.local
 
 
 data class Sede(
-    val id: Long,
+    val id: Int,
     val nombre: String,
     val direccion: String,
     val lat: Double,

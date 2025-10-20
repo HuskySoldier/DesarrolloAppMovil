@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object MembershipPrefs {
     private val KEY_ACTIVE = booleanPreferencesKey("membership_active")
-    private val KEY_SEDE_ID = longPreferencesKey("membership_sede_id")
+    private val KEY_SEDE_ID = intPreferencesKey("membership_sede_id")
     private val KEY_SEDE_NAME = stringPreferencesKey("membership_sede_name")
     private val KEY_SEDE_LAT = doublePreferencesKey("membership_sede_lat")
     private val KEY_SEDE_LNG = doublePreferencesKey("membership_sede_lng")
@@ -18,7 +18,7 @@ object MembershipPrefs {
 
     data class State(
         val hasActivePlan: Boolean = false,
-        val sedeId: Long? = null,
+        val sedeId: Int? = null,
         val sedeName: String? = null,
         val sedeLat: Double? = null,
         val sedeLng: Double? = null,
@@ -35,7 +35,7 @@ object MembershipPrefs {
         ctx.dataStore.data.map { p ->
             State(
                 hasActivePlan = p[KEY_ACTIVE] ?: false,
-                sedeId = p[KEY_SEDE_ID],
+                sedeId = p[KEY_SEDE_ID] as Int?,
                 sedeName = p[KEY_SEDE_NAME],
                 sedeLat = p[KEY_SEDE_LAT],
                 sedeLng = p[KEY_SEDE_LNG],
@@ -46,7 +46,7 @@ object MembershipPrefs {
     // Llamar al contratar: activa plan + fija fecha de fin
     suspend fun setActiveWithSede(
         ctx: Context,
-        id: Long,
+        id: Int,
         name: String,
         lat: Double,
         lng: Double,
