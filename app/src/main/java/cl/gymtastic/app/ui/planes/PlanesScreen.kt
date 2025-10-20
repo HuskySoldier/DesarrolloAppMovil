@@ -78,7 +78,7 @@ fun PlanesScreen(nav: NavController) {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(20.dp))
                             .clickable {
-                                // 👉 Al tocar la card también agrega y va a pagar
+                                //  Al tocar la card también agrega y va a pagar
                                 scope.launch {
                                     ServiceLocator.cart(ctx).add(p.id, 1, p.precio)
                                     snackbar.showSnackbar("Agregado: ${p.nombre}")

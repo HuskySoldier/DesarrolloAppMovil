@@ -1,5 +1,9 @@
 [
     {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
         "merged": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-debug-81:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
         "source": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-main-83:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
@@ -16,11 +20,79 @@
         "source": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-main-83:\\xml\\file_paths.xml"
     },
     {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-debug-81:\\drawable_map_placeholder.PNG.flat",
+        "source": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-main-83:\\drawable\\map_placeholder.PNG"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-hdpi/ic_launcher_foreground.webp"
+    },
+    {
         "merged": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-debug-81:\\drawable_ic_launcher_foreground.xml.flat",
         "source": "C:\\Users\\ivanl\\.gradle\\daemon\\8.13\\cl.gymtastic.app-main-83:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "cl.gymtastic.app-debug-81:/drawable_map_placeholder.PNG.flat",
-        "source": "cl.gymtastic.app-main-83:/drawable/map_placeholder.PNG"
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-mdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "cl.gymtastic.app-main-83:/mipmap-xxhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "cl.gymtastic.app-debug-81:/drawable_ic_launcher_background.xml.flat",
+        "source": "cl.gymtastic.app-main-83:/drawable/ic_launcher_background.xml"
     }
 ]
