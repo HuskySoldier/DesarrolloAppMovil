@@ -8,5 +8,5 @@ data class CartItemEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val productId: Long,
     val qty: Int,
-    val unitPrice: Double
+    val unitPrice: Int
 )

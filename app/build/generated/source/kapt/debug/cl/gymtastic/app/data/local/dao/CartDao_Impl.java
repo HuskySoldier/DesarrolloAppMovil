@@ -10,6 +10,7 @@ import androidx.room.RoomSQLiteQuery;
 import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
+import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import cl.gymtastic.app.data.local.entity.CartItemEntity;
 import java.lang.Class;
@@ -18,6 +19,7 @@ import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +56,7 @@ public final class CartDao_Impl implements CartDao {
         statement.bindLong(1, entity.getId());
         statement.bindLong(2, entity.getProductId());
         statement.bindLong(3, entity.getQty());
-        statement.bindDouble(4, entity.getUnitPrice());
+        statement.bindLong(4, entity.getUnitPrice());
       }
     };
     this.__deletionAdapterOfCartItemEntity = new EntityDeletionOrUpdateAdapter<CartItemEntity>(__db) {
@@ -162,8 +164,8 @@ public final class CartDao_Impl implements CartDao {
             _tmpProductId = _cursor.getLong(_cursorIndexOfProductId);
             final int _tmpQty;
             _tmpQty = _cursor.getInt(_cursorIndexOfQty);
-            final double _tmpUnitPrice;
-            _tmpUnitPrice = _cursor.getDouble(_cursorIndexOfUnitPrice);
+            final int _tmpUnitPrice;
+            _tmpUnitPrice = _cursor.getInt(_cursorIndexOfUnitPrice);
             _item = new CartItemEntity(_tmpId,_tmpProductId,_tmpQty,_tmpUnitPrice);
             _result.add(_item);
           }
@@ -178,6 +180,41 @@ public final class CartDao_Impl implements CartDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object removeByProductIds(final List<Long> productIds,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        _stringBuilder.append("DELETE FROM cart_items WHERE productId IN (");
+        final int _inputSize = productIds.size();
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(")");
+        final String _sql = _stringBuilder.toString();
+        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+        int _argIndex = 1;
+        for (Long _item : productIds) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex);
+          } else {
+            _stmt.bindLong(_argIndex, _item);
+          }
+          _argIndex++;
+        }
+        __db.beginTransaction();
+        try {
+          _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
   }
 
   @NonNull

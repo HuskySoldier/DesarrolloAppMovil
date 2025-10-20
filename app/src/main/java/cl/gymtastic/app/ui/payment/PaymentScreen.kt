@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -30,6 +32,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 
+private fun daysFromNow(days: Int): Long {
+    val now = System.currentTimeMillis()
+    return now + days * 24L * 60L * 60L * 1000L
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentScreen(nav: NavController) {
@@ -37,7 +44,6 @@ fun PaymentScreen(nav: NavController) {
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
 
-    // Cambia a true cuando tengas API key configurada en el Manifest
     val useGoogleMap = true
 
     val metodos = listOf("Débito", "Crédito", "Transferencia", "Efectivo")
@@ -50,17 +56,40 @@ fun PaymentScreen(nav: NavController) {
     val items by cartFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val total = items.sumOf { it.qty * it.unitPrice }.toInt()
 
-    // Sedes
+    // Repo de productos: types + names (nombres reales)
+    val productsRepo = remember { ServiceLocator.products(ctx) }
+    var types by remember { mutableStateOf<Map<Long, String>>(emptyMap()) }
+    var names by remember { mutableStateOf<Map<Long, String>>(emptyMap()) }
+
+    LaunchedEffect(items) {
+        val ids = items.map { it.productId }.distinct()
+        types = productsRepo.getTypesById(ids)
+        names = productsRepo.getNamesById(ids) // ← añade esto a tu repo si aún no existe
+    }
+
+    val hasPlan = remember(items, types) { items.any { types[it.productId] == "plan" } }
+    val totalPlans = remember(items, types) {
+        items.filter { types[it.productId] == "plan" }.sumOf { it.qty * it.unitPrice }.toInt()
+    }
+    val totalMerch = total - totalPlans
+
+    // Sedes (solo si hay plan)
     val sedes = SedesRepo.sedes
     var sedeExpanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(0) }
-    val sede = sedes[selectedIndex]
-    val sedeLatLng = LatLng(sede.lat, sede.lng)
+    val safeIndex = selectedIndex.coerceIn(0, (sedes.size - 1).coerceAtLeast(0))
+    val sede = sedes.getOrNull(safeIndex)
+    val sedeLatLng = remember(safeIndex) {
+        LatLng(sede?.lat ?: -33.45, sede?.lng ?: -70.67) // fallback STGO
+    }
 
     // Mapa
     val cameraState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(sedeLatLng, 14f)
     }
+
+    // Diálogo bloqueo
+    var showBlocked by remember { mutableStateOf<String?>(null) }
 
     val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
 
@@ -93,7 +122,9 @@ fun PaymentScreen(nav: NavController) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = cs.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                    modifier = Modifier.fillMaxWidth(0.95f)
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     Column(
                         modifier = Modifier
@@ -103,9 +134,22 @@ fun PaymentScreen(nav: NavController) {
                     ) {
                         Text("Pago simulado", style = MaterialTheme.typography.headlineSmall)
 
-                        // Resumen
+                        // Resumen + detalle de ítems con nombres reales
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("Productos en carrito: ${items.size}", color = cs.onSurfaceVariant)
+                            Text("Items en carrito: ${items.size}", color = cs.onSurfaceVariant)
+
+                            // ▶︎ Lista con nombre real, cantidad y subtotal
+                            items.forEach { item ->
+                                val nombre = names[item.productId] ?: "Producto #${item.productId}"
+                                val subtotal = item.qty * item.unitPrice
+                                Text(
+                                    text = "• $nombre × ${item.qty} — CLP $subtotal",
+                                    color = cs.onSurfaceVariant
+                                )
+                            }
+
+                            if (hasPlan) Text("Subtotal planes: CLP $totalPlans", color = cs.onSurfaceVariant)
+                            if (totalMerch > 0) Text("Subtotal tienda: CLP $totalMerch", color = cs.onSurfaceVariant)
                             Text(
                                 "Total: CLP $total",
                                 style = MaterialTheme.typography.titleMedium,
@@ -123,9 +167,7 @@ fun PaymentScreen(nav: NavController) {
                                 onValueChange = {},
                                 readOnly = true,
                                 label = { Text("Método de pago") },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = metodoExpanded)
-                                },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metodoExpanded) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                                 modifier = Modifier
                                     .menuAnchor()
@@ -144,71 +186,75 @@ fun PaymentScreen(nav: NavController) {
                             }
                         }
 
-                        // Sede
-                        ExposedDropdownMenuBox(
-                            expanded = sedeExpanded,
-                            onExpandedChange = { sedeExpanded = !sedeExpanded }
-                        ) {
-                            TextField(
-                                value = "${sede.nombre} • ${sede.direccion}",
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("Sede") },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = sedeExpanded)
-                                },
-                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
+                        // === Sede / Mapa solo si hay plan ===
+                        if (hasPlan) {
+                            ExposedDropdownMenuBox(
                                 expanded = sedeExpanded,
-                                onDismissRequest = { sedeExpanded = false }
+                                onExpandedChange = { sedeExpanded = !sedeExpanded }
                             ) {
-                                sedes.forEachIndexed { idx, s ->
-                                    DropdownMenuItem(
-                                        text = { Text("${s.nombre} • ${s.direccion}") },
-                                        onClick = {
-                                            selectedIndex = idx
-                                            sedeExpanded = false
-                                            scope.launch {
-                                                cameraState.animate(
-                                                    update = CameraUpdateFactory.newLatLngZoom(
-                                                        LatLng(s.lat, s.lng), 14f
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        // Mapa (o placeholder si no hay API key)
-                        Box(Modifier.fillMaxWidth().height(180.dp)) {
-                            if (useGoogleMap) {
-                                GoogleMap(
-                                    modifier = Modifier.fillMaxSize(),
-                                    cameraPositionState = cameraState
-                                ) {
-                                    Marker(
-                                        state = MarkerState(position = sedeLatLng),
-                                        title = sede.nombre,
-                                        snippet = sede.direccion
-                                    )
-                                }
-                            } else {
-                                Image(
-                                    painter = painterResource(R.drawable.map_placeholder),
-                                    contentDescription = "Mapa sede",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                                TextField(
+                                    value = if (sede != null)
+                                        "${sede.nombre} • ${sede.direccion}" else "Selecciona una sede",
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Sede") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = sedeExpanded)
+                                    },
+                                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
                                 )
+                                ExposedDropdownMenu(
+                                    expanded = sedeExpanded,
+                                    onDismissRequest = { sedeExpanded = false }
+                                ) {
+                                    sedes.forEachIndexed { idx, s ->
+                                        DropdownMenuItem(
+                                            text = { Text("${s.nombre} • ${s.direccion}") },
+                                            onClick = {
+                                                selectedIndex = idx
+                                                sedeExpanded = false
+                                                scope.launch {
+                                                    cameraState.animate(
+                                                        update = CameraUpdateFactory.newLatLngZoom(
+                                                            LatLng(s.lat, s.lng), 14f
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Mapa
+                            Box(Modifier.fillMaxWidth().height(180.dp)) {
+                                if (useGoogleMap) {
+                                    GoogleMap(
+                                        modifier = Modifier.fillMaxSize(),
+                                        cameraPositionState = cameraState,
+                                        uiSettings = MapUiSettings(zoomControlsEnabled = false)
+                                    ) {
+                                        Marker(
+                                            state = MarkerState(position = sedeLatLng),
+                                            title = sede?.nombre ?: "Sede",
+                                            snippet = sede?.direccion ?: ""
+                                        )
+                                    }
+                                } else {
+                                    Image(
+                                        painter = painterResource(R.drawable.map_placeholder),
+                                        contentDescription = "Mapa sede",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
                             }
                         }
 
-                        // Acciones
+                        // ===== Acciones =====
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -220,30 +266,55 @@ fun PaymentScreen(nav: NavController) {
 
                             Button(
                                 onClick = {
-                                    if (total <= 0) return@Button
+                                    if (total <= 0 || loading) return@Button
                                     loading = true
                                     scope.launch {
                                         try {
-                                            // Simular pago: limpiar carrito + habilitar plan y sede
-                                            ServiceLocator.cart(ctx).clear()
-                                            MembershipPrefs.setActiveWithSede(
-                                                ctx,
-                                                id = sede.id,
-                                                name = sede.nombre,
-                                                lat = sede.lat,
-                                                lng = sede.lng
-                                            )
+                                            if (hasPlan) {
+                                                val canBuy = MembershipPrefs.canPurchaseNewPlan(ctx, thresholdDays = 3)
+                                                if (!canBuy) {
+                                                    val onlyMerchTotal = items
+                                                        .filter { types[it.productId] != "plan" }
+                                                        .sumOf { it.qty * it.unitPrice }
+                                                        .toInt()
 
-                                            // Navegar a pantalla de éxito
-                                            nav.navigate(Screen.PaymentSuccess.route) {
-                                                launchSingleTop = true
-                                                // popUpTo(...) si quieres limpiar backstack parcial
+                                                    if (onlyMerchTotal > 0) {
+                                                        val merchIds = items
+                                                            .filter { types[it.productId] != "plan" }
+                                                            .map { it.productId }
+                                                            .distinct()
+                                                        ServiceLocator.cart(ctx).removeByProductIds(merchIds)
+                                                        nav.navigate(Screen.PaymentSuccess.withPlan(false)) { launchSingleTop = true }
+                                                    } else {
+                                                        showBlocked =
+                                                            "Ya tienes un plan activo. Podrás contratar uno nuevo cuando falten 3 días o menos para que termine."
+                                                    }
+                                                    return@launch
+                                                }
+
+                                                // Flujo normal con plan permitido
+                                                val planEnd = daysFromNow(30)
+                                                val s = sede ?: run {
+                                                    showBlocked = "Selecciona una sede para asociar tu plan."
+                                                    return@launch
+                                                }
+                                                MembershipPrefs.setActiveWithSede(
+                                                    ctx = ctx,
+                                                    id = safeIndex,
+                                                    name = s.nombre,
+                                                    lat = s.lat,
+                                                    lng = s.lng,
+                                                    planEndMillis = planEnd
+                                                )
+                                                ServiceLocator.cart(ctx).clear()
+                                                nav.navigate(Screen.PaymentSuccess.withPlan(true)) { launchSingleTop = true }
+                                            } else {
+                                                // Sólo merch
+                                                ServiceLocator.cart(ctx).clear()
+                                                nav.navigate(Screen.PaymentSuccess.withPlan(false)) { launchSingleTop = true }
                                             }
                                         } catch (e: Exception) {
-                                            // Fallback seguro (volver al home si algo falla)
-                                            nav.navigate(cl.gymtastic.app.ui.navigation.NavRoutes.HOME) {
-                                                popUpTo(0)
-                                            }
+                                            nav.navigate(Screen.Home.route) { popUpTo(0) }
                                         } finally {
                                             loading = false
                                         }
@@ -264,14 +335,25 @@ fun PaymentScreen(nav: NavController) {
                             }
                         }
 
-                        Text(
-                            "Tu plan se asociará a la sede seleccionada.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = cs.onSurfaceVariant
-                        )
+                        if (hasPlan) {
+                            Text(
+                                "Tu plan se asociará a la sede seleccionada.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = cs.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+
+    if (showBlocked != null) {
+        AlertDialog(
+            onDismissRequest = { showBlocked = null },
+            confirmButton = { TextButton(onClick = { showBlocked = null }) { Text("Entendido") } },
+            title = { Text("No puedes contratar ahora") },
+            text = { Text(showBlocked!!) }
+        )
     }
 }

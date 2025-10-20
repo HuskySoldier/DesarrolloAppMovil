@@ -176,12 +176,19 @@ public abstract class Screen {
         }
     }
     
-    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000$\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u000e\n\u0000\b\u00c6\n\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002J\u0013\u0010\u0003\u001a\u00020\u00042\b\u0010\u0005\u001a\u0004\u0018\u00010\u0006H\u00d6\u0003J\t\u0010\u0007\u001a\u00020\bH\u00d6\u0001J\t\u0010\t\u001a\u00020\nH\u00d6\u0001\u00a8\u0006\u000b"}, d2 = {"Lcl/gymtastic/app/ui/navigation/Screen$PaymentSuccess;", "Lcl/gymtastic/app/ui/navigation/Screen;", "()V", "equals", "", "other", "", "hashCode", "", "toString", "", "app_debug"})
+    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000&\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\b\n\u0002\b\u0004\b\u00c6\n\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002J\u0013\u0010\u0005\u001a\u00020\u00062\b\u0010\u0007\u001a\u0004\u0018\u00010\bH\u00d6\u0003J\t\u0010\t\u001a\u00020\nH\u00d6\u0001J\t\u0010\u000b\u001a\u00020\u0004H\u00d6\u0001J\u000e\u0010\f\u001a\u00020\u00042\u0006\u0010\r\u001a\u00020\u0006R\u000e\u0010\u0003\u001a\u00020\u0004X\u0086T\u00a2\u0006\u0002\n\u0000\u00a8\u0006\u000e"}, d2 = {"Lcl/gymtastic/app/ui/navigation/Screen$PaymentSuccess;", "Lcl/gymtastic/app/ui/navigation/Screen;", "()V", "routeWithArg", "", "equals", "", "other", "", "hashCode", "", "toString", "withPlan", "plan", "app_debug"})
     public static final class PaymentSuccess extends cl.gymtastic.app.ui.navigation.Screen {
+        @org.jetbrains.annotations.NotNull()
+        public static final java.lang.String routeWithArg = "payment_success?plan={plan}";
         @org.jetbrains.annotations.NotNull()
         public static final cl.gymtastic.app.ui.navigation.Screen.PaymentSuccess INSTANCE = null;
         
         private PaymentSuccess() {
+        }
+        
+        @org.jetbrains.annotations.NotNull()
+        public final java.lang.String withPlan(boolean plan) {
+            return null;
         }
         
         @java.lang.Override()

@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -174,6 +175,7 @@ fun ProfileScreen(nav: NavController) {
                             if (avatarUri != null) {
                                 AsyncImage(
                                     model = avatarUri,
+                                    contentScale = ContentScale.FillBounds,
                                     contentDescription = "Avatar",
                                     modifier = Modifier
                                         .size(110.dp)

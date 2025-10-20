@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore by preferencesDataStore("session_prefs")
+val Context.dataStore by preferencesDataStore("session_prefs")
 
 object SessionKeys {
     val USER_ID = intPreferencesKey("user_id")

@@ -8,12 +8,14 @@ import cl.gymtastic.app.data.local.entity.UserEntity
 
 @Dao
 interface UsersDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(user: UserEntity): Long
+    @Query("SELECT COUNT(*) FROM users")
+    suspend fun count(): Int
 
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     suspend fun findByEmail(email: String): UserEntity?
 
-    @Query("SELECT COUNT(*) FROM users")
-    suspend fun count(): Int
+    @Insert
+    suspend fun insert(user: UserEntity)
 }
+
+
