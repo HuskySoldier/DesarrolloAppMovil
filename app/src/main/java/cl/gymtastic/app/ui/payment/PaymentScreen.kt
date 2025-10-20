@@ -62,6 +62,9 @@ fun PaymentScreen(nav: NavController) {
         position = CameraPosition.fromLatLngZoom(sedeLatLng, 14f)
     }
 
+    // 🔔 Mensaje de bloqueo para el diálogo
+    var showBlocked by remember { mutableStateOf<String?>(null) }
+
     val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
 
     Scaffold(
@@ -186,7 +189,9 @@ fun PaymentScreen(nav: NavController) {
                         }
 
                         // Mapa (o placeholder si no hay API key)
-                        Box(Modifier.fillMaxWidth().height(180.dp)) {
+                        Box(Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)) {
                             if (useGoogleMap) {
                                 GoogleMap(
                                     modifier = Modifier.fillMaxSize(),
@@ -224,23 +229,35 @@ fun PaymentScreen(nav: NavController) {
                                     loading = true
                                     scope.launch {
                                         try {
-                                            // Simular pago: limpiar carrito + habilitar plan y sede
+                                            // Valida política de compra (evitar contratar con plan vigente)
+                                            val canBuy = MembershipPrefs.canPurchaseNewPlan(
+                                                ctx,
+                                                thresholdDays = 3
+                                            )
+                                            if (!canBuy) {
+                                                showBlocked =
+                                                    "Ya tienes un plan activo. Podrás contratar uno nuevo cuando falten 3 días o menos para que termine."
+                                                return@launch
+                                            }
+
+                                            // Calcula fin del plan (ej.: 30 días)
+                                            val planEnd = daysFromNow(days = 30)
+
+                                            // Simular pago: limpiar carrito + habilitar plan y sede con fecha fin
                                             ServiceLocator.cart(ctx).clear()
                                             MembershipPrefs.setActiveWithSede(
-                                                ctx,
-                                                id = sede.id,
+                                                ctx = ctx,
+                                                id = sede.id,       // 👈 usa el nombre real del parámetro en tu MembershipPrefs
                                                 name = sede.nombre,
                                                 lat = sede.lat,
-                                                lng = sede.lng
+                                                lng = sede.lng,
+                                                planEndMillis = planEnd
                                             )
 
-                                            // Navegar a pantalla de éxito
                                             nav.navigate(Screen.PaymentSuccess.route) {
                                                 launchSingleTop = true
-                                                // popUpTo(...) si quieres limpiar backstack parcial
                                             }
                                         } catch (e: Exception) {
-                                            // Fallback seguro (volver al home si algo falla)
                                             nav.navigate(cl.gymtastic.app.ui.navigation.NavRoutes.HOME) {
                                                 popUpTo(0)
                                             }
@@ -264,6 +281,18 @@ fun PaymentScreen(nav: NavController) {
                             }
                         }
 
+                        // Diálogo de bloqueo (cuando no se puede contratar)
+                        if (showBlocked != null) {
+                            AlertDialog(
+                                onDismissRequest = { showBlocked = null },
+                                confirmButton = {
+                                    TextButton(onClick = { showBlocked = null }) { Text("Entendido") }
+                                },
+                                title = { Text("No puedes contratar ahora") },
+                                text = { Text(showBlocked!!) }
+                            )
+                        }
+
                         Text(
                             "Tu plan se asociará a la sede seleccionada.",
                             style = MaterialTheme.typography.bodySmall,
@@ -274,4 +303,10 @@ fun PaymentScreen(nav: NavController) {
             }
         }
     }
+}
+
+/** Utilidad para sumar días desde “ahora” y devolver millis */
+private fun daysFromNow(days: Int): Long {
+    val now = System.currentTimeMillis()
+    return now + days * 24L * 60L * 60L * 1000L
 }

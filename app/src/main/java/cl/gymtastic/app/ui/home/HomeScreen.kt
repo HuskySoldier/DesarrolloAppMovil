@@ -25,6 +25,8 @@ import cl.gymtastic.app.ui.navigation.Screen
 import cl.gymtastic.app.util.ServiceLocator
 import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,36 +36,25 @@ fun HomeScreen(nav: NavController) {
     val cs = MaterialTheme.colorScheme
     val ctx = LocalContext.current
 
-    // 🔐 Estado de membresía (activa o no)
+    // Estado de membresía
     val membership by remember { MembershipPrefs.observe(ctx) }
         .collectAsStateWithLifecycle(initialValue = MembershipPrefs.State())
 
-    // Snackbar (útil si decides deshabilitar y avisar)
     val snackbar = remember { SnackbarHostState() }
 
-    // Items base (siempre visibles)
     val baseItems = listOf(
         "Home" to Screen.Home.route,
         "Planes" to Screen.Planes.route,
         "Tienda" to Screen.Store.route,
         "Carrito" to Screen.Cart.route
     )
-    // Items que dependen de la membresía
     val gatedItems = listOf(
         "Check-In" to Screen.CheckIn.route,
         "Trainers" to Screen.Trainers.route
     )
-
-    // 👇 Opción A (recomendada): ocultar si no hay plan activo
     val drawerItems =
         if (membership.hasActivePlan) baseItems + gatedItems + listOf("Cerrar sesión" to "logout")
         else baseItems + listOf("Cerrar sesión" to "logout")
-
-    // --------
-    // (Opción B alternativa: mostrar deshabilitado y avisar con snackbar)
-    // fun isLocked(label: String) =
-    //     (label == "Check-In" || label == "Trainers") && !membership.hasActivePlan
-    // --------
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -96,16 +87,6 @@ fun HomeScreen(nav: NavController) {
                                             ServiceLocator.auth(ctx).logout()
                                             nav.navigate(NavRoutes.LOGIN) { popUpTo(0) }
                                         } else {
-                                            // --------
-                                            // (Si usas Opción B deshabilitada)
-                                            // if (isLocked(label)) {
-                                            //     snackbar.showSnackbar("Activa un plan para usar $label")
-                                            // } else {
-                                            //     nav.navigate(route) { launchSingleTop = true }
-                                            // }
-                                            // --------
-
-                                            // Opción A (ocultar): navegar normal
                                             nav.navigate(route) { launchSingleTop = true }
                                         }
                                     }
@@ -122,7 +103,6 @@ fun HomeScreen(nav: NavController) {
                                     selectedTextColor = cs.primary,
                                     unselectedTextColor = cs.onSurface
                                 )
-                                // , enabled = !isLocked(label) // <- Opción B (mostrar deshabilitado)
                             )
                         }
                     }
@@ -162,15 +142,22 @@ fun HomeScreen(nav: NavController) {
                     )
                 )
             },
-            snackbarHost = { SnackbarHost(snackbar) } // <- útil si usas Opción B
+            snackbarHost = { SnackbarHost(snackbar) }
         ) { innerPadding ->
-            HomeContent(Modifier.padding(innerPadding))
+            // ✅ Le pasamos a HomeContent lo que necesita (no el ctx)
+            HomeContent(
+                modifier = Modifier.padding(innerPadding),
+                planEndMillis = membership.planEndMillis
+            )
         }
     }
 }
 
 @Composable
-private fun HomeContent(modifier: Modifier = Modifier) {
+private fun HomeContent(
+    modifier: Modifier = Modifier,
+    planEndMillis: Long?
+) {
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -208,6 +195,17 @@ private fun HomeContent(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.White.copy(alpha = 0.9f)
             )
+
+            // ✅ Mostrar fecha de término si existe (sin ctx)
+            planEndMillis?.let { end ->
+                val df = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Tu plan vence el ${df.format(Date(end))}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+            }
         }
     }
 }
