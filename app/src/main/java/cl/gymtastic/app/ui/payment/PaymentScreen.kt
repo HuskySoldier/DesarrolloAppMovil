@@ -37,8 +37,8 @@ fun PaymentScreen(nav: NavController) {
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
 
-    // ⬇️ Cambia a true cuando tengas API key configurada en el Manifest
-    val useGoogleMap = false
+    // Cambia a true cuando tengas API key configurada en el Manifest
+    val useGoogleMap = true
 
     val metodos = listOf("Débito", "Crédito", "Transferencia", "Efectivo")
     var metodo by remember { mutableStateOf(metodos.first()) }
@@ -184,7 +184,7 @@ fun PaymentScreen(nav: NavController) {
                                 }
                             }
                         }
-                        //cambiar useGoogleMap por true cuando pague la api
+
                         // Mapa (o placeholder si no hay API key)
                         Box(Modifier.fillMaxWidth().height(180.dp)) {
                             if (useGoogleMap) {
