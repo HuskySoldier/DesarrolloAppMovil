@@ -1,7 +1,6 @@
 package cl.gymtastic.app.ui.store
 
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreScreen(nav: NavController) {
     val ctx = LocalContext.current
@@ -41,6 +40,13 @@ fun StoreScreen(nav: NavController) {
 
     val merchFlow = remember { ServiceLocator.products(ctx).observeMerch() }
     val merch by merchFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    // (Opcional) mapa de stocks si quieres refrescos desde DB; si no, usa p.stock directamente
+    val stockMap by produceState<Map<Long, Int?>>(initialValue = emptyMap(), merch) {
+        val ids = merch.map { it.id }
+        val stocks = ServiceLocator.products(ctx).getStockByIds(ids)
+        value = stocks.associate { it.id to it.stock }
+    }
 
     val money = remember {
         NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply { maximumFractionDigits = 0 }
@@ -83,7 +89,6 @@ fun StoreScreen(nav: NavController) {
                 .padding(16.dp)
         ) {
             if (merch.isEmpty()) {
-                // vacío elegante
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         "Aún no hay productos disponibles",
@@ -99,17 +104,33 @@ fun StoreScreen(nav: NavController) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(merch, key = { it.id }) { p ->
+                        val stock = stockMap[p.id] ?: p.stock // si no hay en el mapa, usa el del producto
+                        val canAdd = (stock ?: Int.MAX_VALUE) > 0
+
                         ProductCard(
                             product = p,
                             priceText = money.format(p.precio),
+                            stock = stock,
                             onAdd = {
                                 scope.launch {
+                                    // valida contra el stock antes de agregar
+                                    val currentQty = ServiceLocator.cart(ctx).getQtyFor(p.id)
+                                    val max = (stock ?: Int.MAX_VALUE)
+                                    if (currentQty + 1 > max) {
+                                        Toast.makeText(
+                                            ctx,
+                                            "No hay más stock disponible de \"${p.nombre}\"",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@launch
+                                    }
                                     ServiceLocator.cart(ctx).add(p.id, 1, p.precio.toInt())
                                     Toast
                                         .makeText(ctx, "\"${p.nombre}\" agregado al carrito", Toast.LENGTH_SHORT)
                                         .show()
                                 }
-                            }
+                            },
+                            enabled = canAdd
                         )
                     }
                 }
@@ -122,7 +143,9 @@ fun StoreScreen(nav: NavController) {
 private fun ProductCard(
     product: ProductEntity,
     priceText: String,
-    onAdd: () -> Unit
+    stock: Int?,
+    onAdd: () -> Unit,
+    enabled: Boolean
 ) {
     val cs = MaterialTheme.colorScheme
 
@@ -132,7 +155,6 @@ private fun ProductCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(14.dp)) {
-            // Título
             Text(
                 product.nombre,
                 style = MaterialTheme.typography.titleMedium,
@@ -142,11 +164,10 @@ private fun ProductCard(
 
             Spacer(Modifier.height(4.dp))
 
-            // Badge de stock (si aplica)
-            if (product.stock != null) {
+            if (stock != null) {
                 AssistChip(
                     onClick = { /* no-op */ },
-                    label = { Text("Stock: ${product.stock}") },
+                    label = { Text("Stock: $stock") },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = cs.surfaceVariant,
                         labelColor = cs.onSurfaceVariant
@@ -155,7 +176,6 @@ private fun ProductCard(
                 Spacer(Modifier.height(6.dp))
             }
 
-            // Precio destacado
             Text(
                 priceText,
                 style = MaterialTheme.typography.titleLarge,
@@ -166,9 +186,10 @@ private fun ProductCard(
 
             Button(
                 onClick = onAdd,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled
             ) {
-                Text("Agregar al carrito")
+                Text(if (enabled) "Agregar al carrito" else "Sin stock")
             }
         }
     }

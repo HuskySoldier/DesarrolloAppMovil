@@ -13,6 +13,9 @@ class CartRepository(context: Context) {
     suspend fun clear() = db.cart().clear()
     suspend fun remove(item: CartItemEntity) = db.cart().delete(item)
 
+    suspend fun getQtyFor(productId: Long): Int = db.cart().getQtyFor(productId)
+
+
     suspend fun removeByProductIds(ids: List<Long>) {
         if (ids.isNotEmpty()) db.cart().removeByProductIds(ids)
     }

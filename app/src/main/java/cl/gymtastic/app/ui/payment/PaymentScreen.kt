@@ -31,6 +31,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
+import cl.gymtastic.app.data.local.InsufficientStockException
+
 
 private fun daysFromNow(days: Int): Long {
     val now = System.currentTimeMillis()
@@ -270,34 +272,33 @@ fun PaymentScreen(nav: NavController) {
                                     loading = true
                                     scope.launch {
                                         try {
+                                            val merchItems = items.filter { types[it.productId] != "plan" }
+
                                             if (hasPlan) {
                                                 val canBuy = MembershipPrefs.canPurchaseNewPlan(ctx, thresholdDays = 3)
                                                 if (!canBuy) {
-                                                    val onlyMerchTotal = items
-                                                        .filter { types[it.productId] != "plan" }
-                                                        .sumOf { it.qty * it.unitPrice }
-                                                        .toInt()
-
+                                                    val onlyMerchTotal = merchItems.sumOf { it.qty * it.unitPrice }.toInt()
                                                     if (onlyMerchTotal > 0) {
-                                                        val merchIds = items
-                                                            .filter { types[it.productId] != "plan" }
-                                                            .map { it.productId }
-                                                            .distinct()
+                                                        val merchIds = merchItems.map { it.productId }.distinct()
                                                         ServiceLocator.cart(ctx).removeByProductIds(merchIds)
                                                         nav.navigate(Screen.PaymentSuccess.withPlan(false)) { launchSingleTop = true }
                                                     } else {
-                                                        showBlocked =
-                                                            "Ya tienes un plan activo. Podrás contratar uno nuevo cuando falten 3 días o menos para que termine."
+                                                        showBlocked = "Ya tienes un plan activo. Podrás contratar uno nuevo cuando falten 3 días o menos para que termine."
                                                     }
                                                     return@launch
                                                 }
 
-                                                // Flujo normal con plan permitido
-                                                val planEnd = daysFromNow(30)
+                                                // ✅ 1) Reservar/descontar stock de MERCH (si hay)
+                                                if (merchItems.isNotEmpty()) {
+                                                    productsRepo.reserveAndDecrementMerchStock(merchItems, typesById = types)
+                                                }
+
+                                                // ✅ 2) Activar plan
                                                 val s = sede ?: run {
                                                     showBlocked = "Selecciona una sede para asociar tu plan."
                                                     return@launch
                                                 }
+                                                val planEnd = daysFromNow(30)
                                                 MembershipPrefs.setActiveWithSede(
                                                     ctx = ctx,
                                                     id = safeIndex,
@@ -306,14 +307,29 @@ fun PaymentScreen(nav: NavController) {
                                                     lng = s.lng,
                                                     planEndMillis = planEnd
                                                 )
+
+                                                // ✅ 3) Limpiar y navegar
                                                 ServiceLocator.cart(ctx).clear()
                                                 nav.navigate(Screen.PaymentSuccess.withPlan(true)) { launchSingleTop = true }
                                             } else {
-                                                // Sólo merch
+                                                // ==== Solo MERCH ====
+                                                if (merchItems.isNotEmpty()) {
+                                                    productsRepo.reserveAndDecrementMerchStock(merchItems, typesById = types)
+                                                }
                                                 ServiceLocator.cart(ctx).clear()
                                                 nav.navigate(Screen.PaymentSuccess.withPlan(false)) { launchSingleTop = true }
                                             }
-                                        } catch (e: Exception) {
+                                        } catch (e: InsufficientStockException) {
+                                            // 🔔 Mensaje con los faltantes por nombre
+                                            val msg = buildString {
+                                                append("Stock insuficiente en:\n")
+                                                e.shortages.forEach { (pid, req) ->
+                                                    val nombre = names[pid] ?: "Producto #$pid"
+                                                    append("• $nombre × $req\n")
+                                                }
+                                            }
+                                            showBlocked = msg.trim()
+                                        } catch (_: Exception) {
                                             nav.navigate(Screen.Home.route) { popUpTo(0) }
                                         } finally {
                                             loading = false
@@ -326,13 +342,12 @@ fun PaymentScreen(nav: NavController) {
                                 if (loading) {
                                     CircularProgressIndicator(
                                         strokeWidth = 2.dp,
-                                        modifier = Modifier
-                                            .size(18.dp)
-                                            .padding(end = 8.dp)
+                                        modifier = Modifier.size(18.dp).padding(end = 8.dp)
                                     )
                                 }
                                 Text(if (loading) "Procesando..." else "Pagar")
                             }
+
                         }
 
                         if (hasPlan) {
