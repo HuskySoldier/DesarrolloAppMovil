@@ -18,6 +18,11 @@ interface CartDao {
     @Delete
     suspend fun delete(item: CartItemEntity)
 
+    @Query("SELECT COALESCE(SUM(qty), 0) FROM cart_items WHERE productId = :productId")
+    suspend fun getQtyFor(productId: Long): Int
+
+
+
 
     @Query("DELETE FROM cart_items WHERE productId IN (:productIds)")
     suspend fun removeByProductIds(productIds: List<Long>)

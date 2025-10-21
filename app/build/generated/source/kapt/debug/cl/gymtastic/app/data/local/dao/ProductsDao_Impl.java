@@ -7,6 +7,7 @@ import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
@@ -36,6 +37,8 @@ public final class ProductsDao_Impl implements ProductsDao {
   private final RoomDatabase __db;
 
   private final EntityInsertionAdapter<ProductEntity> __insertionAdapterOfProductEntity;
+
+  private final SharedSQLiteStatement __preparedStmtOfTryDecrementStock;
 
   public ProductsDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -69,6 +72,21 @@ public final class ProductsDao_Impl implements ProductsDao {
         }
       }
     };
+    this.__preparedStmtOfTryDecrementStock = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "\n"
+                + "        UPDATE products\n"
+                + "        SET stock = stock - ?\n"
+                + "        WHERE id = ?\n"
+                + "          AND tipo = 'merch'\n"
+                + "          AND stock IS NOT NULL\n"
+                + "          AND stock >= ?\n"
+                + "    ";
+        return _query;
+      }
+    };
   }
 
   @Override
@@ -85,6 +103,88 @@ public final class ProductsDao_Impl implements ProductsDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object tryDecrementStock(final long id, final int qty,
+      final Continuation<? super Integer> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfTryDecrementStock.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, qty);
+        _argIndex = 2;
+        _stmt.bindLong(_argIndex, id);
+        _argIndex = 3;
+        _stmt.bindLong(_argIndex, qty);
+        try {
+          __db.beginTransaction();
+          try {
+            final Integer _result = _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfTryDecrementStock.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getStockByIds(final List<Long> ids,
+      final Continuation<? super List<ProductStockProjection>> $completion) {
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT id, stock FROM products WHERE id IN (");
+    final int _inputSize = ids.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (Long _item : ids) {
+      if (_item == null) {
+        _statement.bindNull(_argIndex);
+      } else {
+        _statement.bindLong(_argIndex, _item);
+      }
+      _argIndex++;
+    }
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<ProductStockProjection>>() {
+      @Override
+      @NonNull
+      public List<ProductStockProjection> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = 0;
+          final int _cursorIndexOfStock = 1;
+          final List<ProductStockProjection> _result = new ArrayList<ProductStockProjection>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final ProductStockProjection _item_1;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final Integer _tmpStock;
+            if (_cursor.isNull(_cursorIndexOfStock)) {
+              _tmpStock = null;
+            } else {
+              _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            }
+            _item_1 = new ProductStockProjection(_tmpId,_tmpStock);
+            _result.add(_item_1);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
         }
       }
     }, $completion);
@@ -136,90 +236,6 @@ public final class ProductsDao_Impl implements ProductsDao {
             }
             _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo);
             _result.add(_item);
-          }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object count(final Continuation<? super Integer> $completion) {
-    final String _sql = "SELECT COUNT(*) FROM products";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Integer>() {
-      @Override
-      @NonNull
-      public Integer call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Integer _result;
-          if (_cursor.moveToFirst()) {
-            final Integer _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(0);
-            }
-            _result = _tmp;
-          } else {
-            _result = null;
-          }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object getNamesByIds(final List<Long> ids,
-      final Continuation<? super List<ProductNameProjection>> $completion) {
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT id, nombre FROM products WHERE id IN (");
-    final int _inputSize = ids.size();
-    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
-    _stringBuilder.append(")");
-    final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-    int _argIndex = 1;
-    for (Long _item : ids) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex);
-      } else {
-        _statement.bindLong(_argIndex, _item);
-      }
-      _argIndex++;
-    }
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<ProductNameProjection>>() {
-      @Override
-      @NonNull
-      public List<ProductNameProjection> call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final int _cursorIndexOfId = 0;
-          final int _cursorIndexOfNombre = 1;
-          final List<ProductNameProjection> _result = new ArrayList<ProductNameProjection>(_cursor.getCount());
-          while (_cursor.moveToNext()) {
-            final ProductNameProjection _item_1;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
-            final String _tmpNombre;
-            if (_cursor.isNull(_cursorIndexOfNombre)) {
-              _tmpNombre = null;
-            } else {
-              _tmpNombre = _cursor.getString(_cursorIndexOfNombre);
-            }
-            _item_1 = new ProductNameProjection(_tmpId,_tmpNombre);
-            _result.add(_item_1);
           }
           return _result;
         } finally {
@@ -303,8 +319,60 @@ public final class ProductsDao_Impl implements ProductsDao {
   }
 
   @Override
+  public Object getNamesByIds(final List<Long> ids,
+      final Continuation<? super List<ProductNameProjection>> $completion) {
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT id, nombre FROM products WHERE id IN (");
+    final int _inputSize = ids.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (Long _item : ids) {
+      if (_item == null) {
+        _statement.bindNull(_argIndex);
+      } else {
+        _statement.bindLong(_argIndex, _item);
+      }
+      _argIndex++;
+    }
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<ProductNameProjection>>() {
+      @Override
+      @NonNull
+      public List<ProductNameProjection> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = 0;
+          final int _cursorIndexOfNombre = 1;
+          final List<ProductNameProjection> _result = new ArrayList<ProductNameProjection>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final ProductNameProjection _item_1;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpNombre;
+            if (_cursor.isNull(_cursorIndexOfNombre)) {
+              _tmpNombre = null;
+            } else {
+              _tmpNombre = _cursor.getString(_cursorIndexOfNombre);
+            }
+            _item_1 = new ProductNameProjection(_tmpId,_tmpNombre);
+            _result.add(_item_1);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Flow<List<ProductEntity>> observePlanes() {
-    final String _sql = "SELECT * FROM products WHERE tipo = 'plan' ORDER BY precio ASC";
+    final String _sql = "SELECT * FROM products WHERE tipo = 'plan'";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"products"}, new Callable<List<ProductEntity>>() {
       @Override
@@ -363,7 +431,7 @@ public final class ProductsDao_Impl implements ProductsDao {
 
   @Override
   public Flow<List<ProductEntity>> observeMerch() {
-    final String _sql = "SELECT * FROM products WHERE tipo = 'merch' ORDER BY nombre ASC";
+    final String _sql = "SELECT * FROM products WHERE tipo = 'merch'";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"products"}, new Callable<List<ProductEntity>>() {
       @Override
