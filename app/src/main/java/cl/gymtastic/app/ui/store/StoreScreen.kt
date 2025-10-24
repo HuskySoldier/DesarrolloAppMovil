@@ -8,27 +8,37 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Category // <-- ICONO PLACEHOLDER
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale // <-- IMPORTACIÓN AÑADIDA
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import cl.gymtastic.app.data.local.entity.ProductEntity
 import cl.gymtastic.app.ui.navigation.Screen
 import cl.gymtastic.app.util.ServiceLocator
+import coil.compose.SubcomposeAsyncImage // <-- IMPORTACIÓN AÑADIDA
+import coil.compose.SubcomposeAsyncImageContent // <-- IMPORTACIÓN AÑADIDA
+import coil.request.ImageRequest // <-- IMPORTACIÓN AÑADIDA
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreScreen(nav: NavController) {
+fun StoreScreen(
+    nav: NavController,
+    windowSizeClass: WindowSizeClass // <-- PARÁMETRO AÑADIDO
+) {
     val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
@@ -41,15 +51,24 @@ fun StoreScreen(nav: NavController) {
     val merchFlow = remember { ServiceLocator.products(ctx).observeMerch() }
     val merch by merchFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    // (Opcional) mapa de stocks si quieres refrescos desde DB; si no, usa p.stock directamente
-    val stockMap by produceState<Map<Long, Int?>>(initialValue = emptyMap(), merch) {
-        val ids = merch.map { it.id }
+    val stockMap by produceState(initialValue = emptyMap(), merch) {
+        val ids = merch.map { it.id.toLong() }
         val stocks = ServiceLocator.products(ctx).getStockByIds(ids)
-        value = stocks.associate { it.id to it.stock }
+        // Aseguramos que la clave del mapa sea Long
+        value = stocks.associate { it.id.toLong() to it.stock }
     }
+
 
     val money = remember {
         NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply { maximumFractionDigits = 0 }
+    }
+
+    // Reacciona al tamaño de pantalla
+    val widthSizeClass = windowSizeClass.widthSizeClass
+    val gridColumns = if (widthSizeClass == WindowWidthSizeClass.Compact) {
+        GridCells.Fixed(2) // 2 columnas en teléfonos
+    } else {
+        GridCells.Adaptive(minSize = 180.dp) // Columnas adaptativas en tablets
     }
 
     Scaffold(
@@ -98,13 +117,13 @@ fun StoreScreen(nav: NavController) {
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                    columns = gridColumns, // <-- APLICAMOS LAS COLUMNAS DINÁMICAS
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(merch, key = { it.id }) { p ->
-                        val stock = stockMap[p.id] ?: p.stock // si no hay en el mapa, usa el del producto
+                        val stock = stockMap[p.id.toLong()] ?: p.stock
                         val canAdd = (stock ?: Int.MAX_VALUE) > 0
 
                         ProductCard(
@@ -113,8 +132,7 @@ fun StoreScreen(nav: NavController) {
                             stock = stock,
                             onAdd = {
                                 scope.launch {
-                                    // valida contra el stock antes de agregar
-                                    val currentQty = ServiceLocator.cart(ctx).getQtyFor(p.id)
+                                    val currentQty = ServiceLocator.cart(ctx).getQtyFor(p.id.toLong())
                                     val max = (stock ?: Int.MAX_VALUE)
                                     if (currentQty + 1 > max) {
                                         Toast.makeText(
@@ -124,7 +142,7 @@ fun StoreScreen(nav: NavController) {
                                         ).show()
                                         return@launch
                                     }
-                                    ServiceLocator.cart(ctx).add(p.id, 1, p.precio.toInt())
+                                    ServiceLocator.cart(ctx).add(p.id.toLong(), 1, p.precio.toInt())
                                     Toast
                                         .makeText(ctx, "\"${p.nombre}\" agregado al carrito", Toast.LENGTH_SHORT)
                                         .show()
@@ -148,49 +166,94 @@ private fun ProductCard(
     enabled: Boolean
 ) {
     val cs = MaterialTheme.colorScheme
+    val ctx = LocalContext.current // <-- CONTEXTO AÑADIDO
 
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = cs.surface),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Text(
-                product.nombre,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+        // --- ❗️ CAMBIO AQUÍ: Column con padding(0) para que la imagen toque el borde ---
+        Column(Modifier.padding(0.dp)) {
+
+            // --- ❗️ CAMBIO AQUÍ: Imagen del producto añadida ---
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(ctx)
+                    .data(product.img) // Carga la URL del producto
+                    .crossfade(true)
+                    .build(),
+                contentDescription = product.nombre,
+                contentScale = ContentScale.Crop, // Rellena el espacio
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp), // Altura fija para la imagen
+                loading = {
+                    // Muestra un spinner mientras carga
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(strokeWidth = 2.dp)
+                    }
+                },
+                error = {
+                    // Muestra un ícono si la URL falla o es nula
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(cs.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Category,
+                            "Placeholder",
+                            tint = cs.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                },
+                success = {
+                    SubcomposeAsyncImageContent() // Muestra la imagen
+                }
             )
 
-            Spacer(Modifier.height(4.dp))
-
-            if (stock != null) {
-                AssistChip(
-                    onClick = { /* no-op */ },
-                    label = { Text("Stock: $stock") },
-                    colors = AssistChipDefaults.assistChipColors(
-                        containerColor = cs.surfaceVariant,
-                        labelColor = cs.onSurfaceVariant
-                    )
+            // --- ❗️ CAMBIO AQUÍ: Contenido de texto envuelto en padding ---
+            Column(Modifier.padding(14.dp)) {
+                Text(
+                    product.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.height(6.dp))
-            }
 
-            Text(
-                priceText,
-                style = MaterialTheme.typography.titleLarge,
-                color = cs.primary
-            )
+                Spacer(Modifier.height(4.dp))
 
-            Spacer(Modifier.height(10.dp))
+                if (stock != null) {
+                    AssistChip(
+                        onClick = { /* no-op */ },
+                        label = { Text("Stock: $stock") },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = cs.surfaceVariant,
+                            labelColor = cs.onSurfaceVariant
+                        )
+                    )
+                    Spacer(Modifier.height(6.dp))
+                }
 
-            Button(
-                onClick = onAdd,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = enabled
-            ) {
-                Text(if (enabled) "Agregar al carrito" else "Sin stock")
+                Text(
+                    priceText,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = cs.primary
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                Button(
+                    onClick = onAdd,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = enabled
+                ) {
+                    Text(if (enabled) "Agregar al carrito" else "Sin stock")
+                }
             }
         }
     }
 }
+

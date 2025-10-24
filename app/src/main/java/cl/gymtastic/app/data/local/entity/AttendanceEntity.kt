@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "attendance")
 data class AttendanceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val userId: Long,
+    val userEmail: String,
     val timestamp: Long = System.currentTimeMillis(), // check-in
     val checkOutTimestamp: Long? = null               // check-out (opcional)
 )

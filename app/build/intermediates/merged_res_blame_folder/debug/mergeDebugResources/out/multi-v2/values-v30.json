@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "cl.gymtastic.app-mergeDebugResources-79:/values-v30/values-v30.xml",
+            "outputFile": "cl.gymtastic.app-mergeDebugResources-72:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\ivanl\\.gradle\\caches\\8.13\\transforms\\772c75b5aa2975747e35cb045dc382be\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\ivanl\\.gradle\\caches\\8.13\\transforms\\43e18003aa7a9364a88c9543cf5f2932\\transformed\\material3\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

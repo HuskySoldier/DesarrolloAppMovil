@@ -4,8 +4,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -25,6 +25,9 @@ sealed class Screen(val route: String) {
     data object Trainers : Screen("trainers")
     data object Profile  : Screen("profile")
 
+    data object Admin : Screen("admin")
+
+
     // payment_success con query opcional ?plan=
     data object PaymentSuccess : Screen("payment_success") {
         fun withPlan(plan: Boolean) = "payment_success?plan=$plan"
@@ -41,14 +44,15 @@ sealed class Screen(val route: String) {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavGraph(
-    startDestination: String = Screen.Login.route
+    startDestination: String = Screen.Login.route,
+    windowSizeClass: WindowSizeClass // <-- PARÁMETRO AÑADIDO
 ) {
     val navController = rememberAnimatedNavController()
 
     val enterRight = { slideInHorizontally(animationSpec = tween(300)) { it } }
-    val exitLeft   = { slideOutHorizontally(animationSpec = tween(300)) { -it } }
-    val enterLeft  = { slideInHorizontally(animationSpec = tween(300)) { -it } }
-    val exitRight  = { slideOutHorizontally(animationSpec = tween(300)) { it } }
+    val exitLeft = { slideOutHorizontally(animationSpec = tween(300)) { -it } }
+    val enterLeft = { slideInHorizontally(animationSpec = tween(300)) { -it } }
+    val exitRight = { slideOutHorizontally(animationSpec = tween(300)) { it } }
 
     AnimatedNavHost(
         navController = navController,
@@ -64,7 +68,9 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.auth.LoginScreen(navController)
+            // Ahora puedes pasar windowSizeClass si LoginScreen lo necesita
+            // cl.gymtastic.app.ui.auth.LoginScreen(navController, windowSizeClass)
+            cl.gymtastic.app.ui.auth.LoginScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -74,7 +80,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.auth.RegisterScreen(navController)
+            cl.gymtastic.app.ui.auth.RegisterScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -84,7 +90,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.home.HomeScreen(navController)
+            cl.gymtastic.app.ui.home.HomeScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -94,7 +100,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.planes.PlanesScreen(navController)
+            cl.gymtastic.app.ui.planes.PlanesScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -104,7 +110,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.payment.PaymentScreen(navController)
+            cl.gymtastic.app.ui.payment.PaymentScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -114,7 +120,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.store.StoreScreen(navController)
+            cl.gymtastic.app.ui.store.StoreScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -124,7 +130,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.cart.CartScreen(navController)
+            cl.gymtastic.app.ui.cart.CartScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -134,7 +140,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.checkin.CheckInScreen(navController)
+            cl.gymtastic.app.ui.checkin.CheckInScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -144,7 +150,7 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.trainers.TrainersScreen(navController)
+            cl.gymtastic.app.ui.trainers.TrainersScreen(navController, windowSizeClass)
         }
 
         composable(
@@ -160,8 +166,11 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            val trainerId = it.arguments?.getLong("trainerId") ?: -1L
-            cl.gymtastic.app.ui.booking.BookingScreen(navController /*, trainerId*/)
+            it.arguments?.getLong("trainerId") ?: -1L
+            cl.gymtastic.app.ui.booking.BookingScreen(
+                navController,
+                windowSizeClass /*, trainerId*/
+            )
         }
 
         // ÚNICA definición de payment_success con arg opcional plan
@@ -181,7 +190,7 @@ fun NavGraph(
             val planActivated = backStackEntry.arguments?.getBoolean("plan") ?: false
             cl.gymtastic.app.ui.payment.PaymentSuccessScreen(
                 nav = navController,
-                planActivated = planActivated
+                planActivated = planActivated,windowSizeClass
             )
         }
 
@@ -192,40 +201,20 @@ fun NavGraph(
             popEnterTransition = { enterLeft() },
             popExitTransition = { exitRight() }
         ) {
-            cl.gymtastic.app.ui.profile.ProfileScreen(navController)
+            cl.gymtastic.app.ui.profile.ProfileScreen(navController, windowSizeClass)
+        }
+
+        composable(
+            route = Screen.Admin.route,
+            enterTransition = { enterRight() },
+            exitTransition = { exitLeft() },
+            popEnterTransition = { enterLeft() },
+            popExitTransition = { exitRight() }
+        ) {
+            cl.gymtastic.app.ui.admin.AdminScreen(navController, windowSizeClass)
+
+
         }
     }
-}
 
-// ===== Helpers de navegación (centralizados y sin strings sueltas) =====
-fun NavController.goToBooking(trainerId: Long? = null) {
-    navigate(Screen.Booking.routeWith(trainerId))
-}
-
-fun NavController.goHome(clearStack: Boolean = true) {
-    if (clearStack) {
-        navigate(Screen.Home.route) {
-            popUpTo(0) { inclusive = true }  // limpia todo el back stack
-            launchSingleTop = true
-        }
-    } else {
-        navigate(Screen.Home.route)
-    }
-}
-
-fun NavController.goLogin(clearStack: Boolean = true) {
-    if (clearStack) {
-        navigate(Screen.Login.route) {
-            popUpTo(0) { inclusive = true }
-            launchSingleTop = true
-        }
-    } else {
-        navigate(Screen.Login.route)
-    }
-}
-
-fun NavController.goPaymentSuccess(planActivated: Boolean) {
-    navigate(Screen.PaymentSuccess.withPlan(planActivated)) {
-        launchSingleTop = true
-    }
 }

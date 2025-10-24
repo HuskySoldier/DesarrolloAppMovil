@@ -4,7 +4,9 @@ import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
+import androidx.room.EntityUpsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.room.util.CursorUtil;
@@ -34,13 +36,17 @@ public final class TrainersDao_Impl implements TrainersDao {
 
   private final EntityInsertionAdapter<TrainerEntity> __insertionAdapterOfTrainerEntity;
 
+  private final EntityDeletionOrUpdateAdapter<TrainerEntity> __deletionAdapterOfTrainerEntity;
+
+  private final EntityUpsertionAdapter<TrainerEntity> __upsertionAdapterOfTrainerEntity;
+
   public TrainersDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfTrainerEntity = new EntityInsertionAdapter<TrainerEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `trainers` (`id`,`nombre`,`fono`,`email`,`especialidad`,`foto`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `trainers` (`id`,`nombre`,`fono`,`email`,`especialidad`,`img`) VALUES (nullif(?, 0),?,?,?,?,?)";
       }
 
       @Override
@@ -67,13 +73,102 @@ public final class TrainersDao_Impl implements TrainersDao {
         } else {
           statement.bindString(5, entity.getEspecialidad());
         }
-        if (entity.getFoto() == null) {
+        if (entity.getImg() == null) {
           statement.bindNull(6);
         } else {
-          statement.bindString(6, entity.getFoto());
+          statement.bindString(6, entity.getImg());
         }
       }
     };
+    this.__deletionAdapterOfTrainerEntity = new EntityDeletionOrUpdateAdapter<TrainerEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "DELETE FROM `trainers` WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TrainerEntity entity) {
+        statement.bindLong(1, entity.getId());
+      }
+    };
+    this.__upsertionAdapterOfTrainerEntity = new EntityUpsertionAdapter<TrainerEntity>(new EntityInsertionAdapter<TrainerEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `trainers` (`id`,`nombre`,`fono`,`email`,`especialidad`,`img`) VALUES (nullif(?, 0),?,?,?,?,?)";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TrainerEntity entity) {
+        statement.bindLong(1, entity.getId());
+        if (entity.getNombre() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getNombre());
+        }
+        if (entity.getFono() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindString(3, entity.getFono());
+        }
+        if (entity.getEmail() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getEmail());
+        }
+        if (entity.getEspecialidad() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getEspecialidad());
+        }
+        if (entity.getImg() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getImg());
+        }
+      }
+    }, new EntityDeletionOrUpdateAdapter<TrainerEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `trainers` SET `id` = ?,`nombre` = ?,`fono` = ?,`email` = ?,`especialidad` = ?,`img` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TrainerEntity entity) {
+        statement.bindLong(1, entity.getId());
+        if (entity.getNombre() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getNombre());
+        }
+        if (entity.getFono() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindString(3, entity.getFono());
+        }
+        if (entity.getEmail() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getEmail());
+        }
+        if (entity.getEspecialidad() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getEspecialidad());
+        }
+        if (entity.getImg() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getImg());
+        }
+        statement.bindLong(7, entity.getId());
+      }
+    });
   }
 
   @Override
@@ -86,6 +181,42 @@ public final class TrainersDao_Impl implements TrainersDao {
         __db.beginTransaction();
         try {
           __insertionAdapterOfTrainerEntity.insert(list);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object delete(final TrainerEntity product, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __deletionAdapterOfTrainerEntity.handle(product);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object save(final TrainerEntity product, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __upsertionAdapterOfTrainerEntity.upsert(product);
           __db.setTransactionSuccessful();
           return Unit.INSTANCE;
         } finally {
@@ -110,7 +241,7 @@ public final class TrainersDao_Impl implements TrainersDao {
           final int _cursorIndexOfFono = CursorUtil.getColumnIndexOrThrow(_cursor, "fono");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfEspecialidad = CursorUtil.getColumnIndexOrThrow(_cursor, "especialidad");
-          final int _cursorIndexOfFoto = CursorUtil.getColumnIndexOrThrow(_cursor, "foto");
+          final int _cursorIndexOfImg = CursorUtil.getColumnIndexOrThrow(_cursor, "img");
           final List<TrainerEntity> _result = new ArrayList<TrainerEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final TrainerEntity _item;
@@ -140,13 +271,13 @@ public final class TrainersDao_Impl implements TrainersDao {
             } else {
               _tmpEspecialidad = _cursor.getString(_cursorIndexOfEspecialidad);
             }
-            final String _tmpFoto;
-            if (_cursor.isNull(_cursorIndexOfFoto)) {
-              _tmpFoto = null;
+            final String _tmpImg;
+            if (_cursor.isNull(_cursorIndexOfImg)) {
+              _tmpImg = null;
             } else {
-              _tmpFoto = _cursor.getString(_cursorIndexOfFoto);
+              _tmpImg = _cursor.getString(_cursorIndexOfImg);
             }
-            _item = new TrainerEntity(_tmpId,_tmpNombre,_tmpFono,_tmpEmail,_tmpEspecialidad,_tmpFoto);
+            _item = new TrainerEntity(_tmpId,_tmpNombre,_tmpFono,_tmpEmail,_tmpEspecialidad,_tmpImg);
             _result.add(_item);
           }
           return _result;

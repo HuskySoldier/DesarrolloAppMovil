@@ -1,6 +1,7 @@
 package cl.gymtastic.app.data.local.dao
 
 import androidx.room.*
+import cl.gymtastic.app.data.local.entity.ProductEntity
 import cl.gymtastic.app.data.local.entity.TrainerEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -14,4 +15,10 @@ interface TrainersDao {
 
     @Query("SELECT COUNT(*) FROM trainers")
     suspend fun count(): Int
+
+    @Delete
+    suspend fun delete(product: TrainerEntity)
+
+    @Upsert
+    suspend fun save(product: TrainerEntity)
 }

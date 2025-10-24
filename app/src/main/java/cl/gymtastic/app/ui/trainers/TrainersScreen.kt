@@ -14,11 +14,14 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale // <-- Importado
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,16 +31,38 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cl.gymtastic.app.data.local.entity.TrainerEntity
 import cl.gymtastic.app.ui.navigation.Screen
 import cl.gymtastic.app.util.ServiceLocator
+import coil.compose.SubcomposeAsyncImage // <-- Importado
+import coil.compose.SubcomposeAsyncImageContent // <-- Importado
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrainersScreen(nav: NavController) {
+fun TrainersScreen(
+    nav: NavController,
+    windowSizeClass: WindowSizeClass
+) {
     val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     val flow = remember { ServiceLocator.trainers(ctx).observeAll() }
     val list: List<TrainerEntity> by flow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
+
+    // Reacciona al tamaño de pantalla
+    val widthSizeClass = windowSizeClass.widthSizeClass
+    val isCompact = widthSizeClass == WindowWidthSizeClass.Compact
+
+    // Modificador de contenido para centrar y limitar el ancho en tablets
+    val contentModifier = if (isCompact) {
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    } else {
+        Modifier
+            .width(600.dp) // Ancho máximo en tablets
+            .padding(vertical = 12.dp)
+    }
+    // El Box contenedor centrará esta columna en tablets
+    val boxAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter
 
     Scaffold(
         topBar = {
@@ -56,38 +81,44 @@ fun TrainersScreen(nav: NavController) {
             )
         }
     ) { padding ->
-        Column(
+        // Usamos un Box para centrar el contenido en tablets
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(bg)
-                .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(padding),
+            contentAlignment = boxAlignment // <-- CENTRAMOS EL CONTENIDO
         ) {
-            Text(
-                "Conoce a nuestro equipo",
-                style = MaterialTheme.typography.titleMedium,
-                color = cs.onSurfaceVariant
-            )
-            Spacer(Modifier.height(12.dp))
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
+            Column(
+                modifier = contentModifier // <-- APLICAMOS MODIFICADOR
             ) {
-                items(list.size) { i ->
-                    val t = list[i]
-                    TrainerCard(
-                        trainer = t,
-                        onCall = {
-                            safeStart(ctx, Intent(Intent.ACTION_DIAL, Uri.parse("tel:${t.fono}")))
-                        },
-                        onEmail = {
-                            safeStart(ctx, Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${t.email}")))
-                        },
-                        onBook = {
-                            nav.navigate(Screen.Booking.routeWith(t.id))
-                        }
-                    )
+                Text(
+                    "Conoce a nuestro equipo",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = cs.onSurfaceVariant
+                )
+                Spacer(Modifier.height(12.dp))
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+                    items(list.size) { i ->
+                        val t = list[i]
+                        TrainerCard(
+                            trainer = t,
+                            onCall = {
+                                safeStart(ctx, Intent(Intent.ACTION_DIAL, Uri.parse("tel:${t.fono}")))
+                            },
+                            onEmail = {
+                                safeStart(ctx, Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${t.email}")))
+                            },
+                            onBook = {
+                                // Asumiendo que TrainerEntity.id es Int
+                                nav.navigate(Screen.Booking.routeWith(t.id.toLong()))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -110,20 +141,39 @@ private fun TrainerCard(
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Avatar con iniciales
-                Box(
+
+                // --- ❗️ CAMBIO: Mostrar imagen o fallback a iniciales ---
+                SubcomposeAsyncImage(
+                    model = trainer.img, // Carga la URI (String)
+                    contentDescription = trainer.nombre,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(56.dp)
                         .clip(CircleShape)
                         .background(cs.primary.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = initialsFor(trainer.nombre),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = cs.primary
-                    )
-                }
+                    loading = {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.padding(16.dp) // Más pequeño
+                        )
+                    },
+                    error = {
+                        // Fallback a las iniciales si la imagen es nula o falla
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = initialsFor(trainer.nombre),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = cs.primary
+                            )
+                        }
+                    },
+                    success = { SubcomposeAsyncImageContent() } // Muestra la imagen
+                )
+                // --- Fin del cambio ---
+
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -190,8 +240,8 @@ private fun initialsFor(name: String): String {
     val parts = name.trim().split(Regex("\\s+"))
     return when {
         parts.size >= 2 -> "${parts[0].firstOrNull() ?: ' '}${parts[1].firstOrNull() ?: ' '}".uppercase()
-        parts.isNotEmpty() -> "${parts[0].firstOrNull() ?: ' '}".uppercase()
-        else -> "GT"
+        parts.isNotEmpty() -> "${parts[0].firstOrNull() ?: 'G'}".uppercase() // Fallback a G
+        else -> "G"
     }
 }
 
@@ -202,3 +252,4 @@ private fun safeStart(ctx: android.content.Context, intent: Intent) {
         // Silencioso: no hay app que atienda el intent
     }
 }
+
