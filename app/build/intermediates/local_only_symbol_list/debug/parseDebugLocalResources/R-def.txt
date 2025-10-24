@@ -1,10 +1,14 @@
 R_DEF: Internal format may change without notice
 local
 color ic_launcher_background
+drawable botella_agua
 drawable gym_background
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable map_placeholder
+drawable polera_gym
+drawable trainer_ana
+drawable trainer_luis
 mipmap ic_launcher
 mipmap ic_launcher_foreground
 mipmap ic_launcher_round

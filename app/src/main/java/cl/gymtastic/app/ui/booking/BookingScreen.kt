@@ -6,6 +6,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +24,10 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingScreen(nav: NavController) {
+fun BookingScreen(
+    nav: NavController,
+    windowSizeClass: WindowSizeClass // <-- PARÁMETRO AÑADIDO
+) {
     val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
@@ -57,6 +62,15 @@ fun BookingScreen(nav: NavController) {
     // Fondo
     val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.20f), cs.surface))
 
+    // Reacciona al tamaño de pantalla
+    val widthSizeClass = windowSizeClass.widthSizeClass
+    val isCompact = widthSizeClass == WindowWidthSizeClass.Compact
+    val cardModifier = if (isCompact) {
+        Modifier.fillMaxWidth(0.95f)
+    } else {
+        Modifier.width(550.dp) // Ancho fijo para tablets
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,7 +101,7 @@ fun BookingScreen(nav: NavController) {
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = cs.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                modifier = Modifier.fillMaxWidth(0.95f)
+                modifier = cardModifier // <-- APLICAMOS MODIFICADOR
             ) {
                 Column(
                     modifier = Modifier

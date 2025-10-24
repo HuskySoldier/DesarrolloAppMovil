@@ -53,17 +53,17 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(6) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `email` TEXT NOT NULL, `passHash` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rol` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `products` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `precio` REAL NOT NULL, `img` TEXT, `stock` INTEGER NOT NULL, `tipo` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passHash` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rol` TEXT NOT NULL, `planEndMillis` INTEGER, `sedeId` INTEGER, `sedeName` TEXT, `sedeLat` REAL, `sedeLng` REAL, PRIMARY KEY(`email`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `products` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `precio` REAL NOT NULL, `img` TEXT, `stock` INTEGER, `tipo` TEXT NOT NULL, `descripcion` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `cart_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `unitPrice` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `attendance` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `checkOutTimestamp` INTEGER)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `trainers` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fono` TEXT NOT NULL, `email` TEXT NOT NULL, `especialidad` TEXT NOT NULL, `foto` TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `attendance` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userEmail` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `checkOutTimestamp` INTEGER)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `trainers` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fono` TEXT NOT NULL, `email` TEXT NOT NULL, `especialidad` TEXT NOT NULL, `img` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `trainerId` INTEGER NOT NULL, `fechaHora` INTEGER NOT NULL, `estado` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9716a04a2c3ee3f10acd8f320f5d8498')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5e31b2e119c64ecd57167094007d0279')");
       }
 
       @Override
@@ -117,13 +117,16 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsUsers = new HashMap<String, TableInfo.Column>(6);
-        _columnsUsers.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsUsers.put("email", new TableInfo.Column("email", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashMap<String, TableInfo.Column> _columnsUsers = new HashMap<String, TableInfo.Column>(9);
+        _columnsUsers.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("passHash", new TableInfo.Column("passHash", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("nombre", new TableInfo.Column("nombre", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("rol", new TableInfo.Column("rol", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsUsers.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("planEndMillis", new TableInfo.Column("planEndMillis", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("sedeId", new TableInfo.Column("sedeId", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("sedeName", new TableInfo.Column("sedeName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("sedeLat", new TableInfo.Column("sedeLat", "REAL", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("sedeLng", new TableInfo.Column("sedeLng", "REAL", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysUsers = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesUsers = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoUsers = new TableInfo("users", _columnsUsers, _foreignKeysUsers, _indicesUsers);
@@ -133,13 +136,14 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
                   + " Expected:\n" + _infoUsers + "\n"
                   + " Found:\n" + _existingUsers);
         }
-        final HashMap<String, TableInfo.Column> _columnsProducts = new HashMap<String, TableInfo.Column>(6);
+        final HashMap<String, TableInfo.Column> _columnsProducts = new HashMap<String, TableInfo.Column>(7);
         _columnsProducts.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsProducts.put("nombre", new TableInfo.Column("nombre", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsProducts.put("precio", new TableInfo.Column("precio", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsProducts.put("img", new TableInfo.Column("img", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsProducts.put("stock", new TableInfo.Column("stock", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsProducts.put("stock", new TableInfo.Column("stock", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsProducts.put("tipo", new TableInfo.Column("tipo", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsProducts.put("descripcion", new TableInfo.Column("descripcion", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysProducts = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesProducts = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoProducts = new TableInfo("products", _columnsProducts, _foreignKeysProducts, _indicesProducts);
@@ -165,7 +169,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         }
         final HashMap<String, TableInfo.Column> _columnsAttendance = new HashMap<String, TableInfo.Column>(4);
         _columnsAttendance.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsAttendance.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAttendance.put("userEmail", new TableInfo.Column("userEmail", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAttendance.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAttendance.put("checkOutTimestamp", new TableInfo.Column("checkOutTimestamp", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysAttendance = new HashSet<TableInfo.ForeignKey>(0);
@@ -183,7 +187,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         _columnsTrainers.put("fono", new TableInfo.Column("fono", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTrainers.put("email", new TableInfo.Column("email", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTrainers.put("especialidad", new TableInfo.Column("especialidad", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsTrainers.put("foto", new TableInfo.Column("foto", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTrainers.put("img", new TableInfo.Column("img", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysTrainers = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesTrainers = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoTrainers = new TableInfo("trainers", _columnsTrainers, _foreignKeysTrainers, _indicesTrainers);
@@ -210,7 +214,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "9716a04a2c3ee3f10acd8f320f5d8498", "aff0836f5ce351f2bad42d57d8203f59");
+    }, "5e31b2e119c64ecd57167094007d0279", "036c6b7e34abbe95c1e6f3854f6727bc");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

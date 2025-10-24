@@ -12,15 +12,13 @@ object ServiceLocator {
     fun products(ctx: Context): ProductsRepository {
         return productsRepo ?: ProductsRepository(ctx).also { productsRepo = it }
     }
+
     fun auth(context: Context) = AuthRepository(context)
     fun cart(context: Context) = CartRepository(context)
     fun attendance(context: Context) = AttendanceRepository(context)
     fun trainers(context: Context) = TrainersRepository(context)
     fun bookings(context: Context) = BookingsRepository(context)
 
-
     fun db(ctx: Context) = GymTasticDatabase.get(ctx)
-    fun users(ctx: Context) = db(ctx).users()
 
 }
-

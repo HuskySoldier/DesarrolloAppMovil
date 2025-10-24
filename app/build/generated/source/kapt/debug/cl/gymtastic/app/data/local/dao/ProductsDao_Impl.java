@@ -4,7 +4,9 @@ import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
+import androidx.room.EntityUpsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.room.SharedSQLiteStatement;
@@ -16,7 +18,6 @@ import cl.gymtastic.app.data.local.entity.ProductEntity;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
-import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -38,7 +39,11 @@ public final class ProductsDao_Impl implements ProductsDao {
 
   private final EntityInsertionAdapter<ProductEntity> __insertionAdapterOfProductEntity;
 
+  private final EntityDeletionOrUpdateAdapter<ProductEntity> __deletionAdapterOfProductEntity;
+
   private final SharedSQLiteStatement __preparedStmtOfTryDecrementStock;
+
+  private final EntityUpsertionAdapter<ProductEntity> __upsertionAdapterOfProductEntity;
 
   public ProductsDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -46,7 +51,7 @@ public final class ProductsDao_Impl implements ProductsDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `products` (`id`,`nombre`,`precio`,`img`,`stock`,`tipo`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `products` (`id`,`nombre`,`precio`,`img`,`stock`,`tipo`,`descripcion`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
       }
 
       @Override
@@ -64,12 +69,34 @@ public final class ProductsDao_Impl implements ProductsDao {
         } else {
           statement.bindString(4, entity.getImg());
         }
-        statement.bindLong(5, entity.getStock());
+        if (entity.getStock() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindLong(5, entity.getStock());
+        }
         if (entity.getTipo() == null) {
           statement.bindNull(6);
         } else {
           statement.bindString(6, entity.getTipo());
         }
+        if (entity.getDescripcion() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindString(7, entity.getDescripcion());
+        }
+      }
+    };
+    this.__deletionAdapterOfProductEntity = new EntityDeletionOrUpdateAdapter<ProductEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "DELETE FROM `products` WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final ProductEntity entity) {
+        statement.bindLong(1, entity.getId());
       }
     };
     this.__preparedStmtOfTryDecrementStock = new SharedSQLiteStatement(__db) {
@@ -87,6 +114,84 @@ public final class ProductsDao_Impl implements ProductsDao {
         return _query;
       }
     };
+    this.__upsertionAdapterOfProductEntity = new EntityUpsertionAdapter<ProductEntity>(new EntityInsertionAdapter<ProductEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `products` (`id`,`nombre`,`precio`,`img`,`stock`,`tipo`,`descripcion`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final ProductEntity entity) {
+        statement.bindLong(1, entity.getId());
+        if (entity.getNombre() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getNombre());
+        }
+        statement.bindDouble(3, entity.getPrecio());
+        if (entity.getImg() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getImg());
+        }
+        if (entity.getStock() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindLong(5, entity.getStock());
+        }
+        if (entity.getTipo() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getTipo());
+        }
+        if (entity.getDescripcion() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindString(7, entity.getDescripcion());
+        }
+      }
+    }, new EntityDeletionOrUpdateAdapter<ProductEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `products` SET `id` = ?,`nombre` = ?,`precio` = ?,`img` = ?,`stock` = ?,`tipo` = ?,`descripcion` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final ProductEntity entity) {
+        statement.bindLong(1, entity.getId());
+        if (entity.getNombre() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getNombre());
+        }
+        statement.bindDouble(3, entity.getPrecio());
+        if (entity.getImg() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getImg());
+        }
+        if (entity.getStock() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindLong(5, entity.getStock());
+        }
+        if (entity.getTipo() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getTipo());
+        }
+        if (entity.getDescripcion() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindString(7, entity.getDescripcion());
+        }
+        statement.bindLong(8, entity.getId());
+      }
+    });
   }
 
   @Override
@@ -109,7 +214,25 @@ public final class ProductsDao_Impl implements ProductsDao {
   }
 
   @Override
-  public Object tryDecrementStock(final long id, final int qty,
+  public Object delete(final ProductEntity product, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __deletionAdapterOfProductEntity.handle(product);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object tryDecrementStock(final int id, final int qty,
       final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
@@ -139,7 +262,25 @@ public final class ProductsDao_Impl implements ProductsDao {
   }
 
   @Override
-  public Object getStockByIds(final List<Long> ids,
+  public Object save(final ProductEntity product, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __upsertionAdapterOfProductEntity.upsert(product);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getStockByIds(final List<Integer> ids,
       final Continuation<? super List<ProductStockProjection>> $completion) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT id, stock FROM products WHERE id IN (");
@@ -150,7 +291,7 @@ public final class ProductsDao_Impl implements ProductsDao {
     final int _argCount = 0 + _inputSize;
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
     int _argIndex = 1;
-    for (Long _item : ids) {
+    for (Integer _item : ids) {
       if (_item == null) {
         _statement.bindNull(_argIndex);
       } else {
@@ -170,8 +311,8 @@ public final class ProductsDao_Impl implements ProductsDao {
           final List<ProductStockProjection> _result = new ArrayList<ProductStockProjection>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductStockProjection _item_1;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final Integer _tmpStock;
             if (_cursor.isNull(_cursorIndexOfStock)) {
               _tmpStock = null;
@@ -207,11 +348,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           final int _cursorIndexOfImg = CursorUtil.getColumnIndexOrThrow(_cursor, "img");
           final int _cursorIndexOfStock = CursorUtil.getColumnIndexOrThrow(_cursor, "stock");
           final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
+          final int _cursorIndexOfDescripcion = CursorUtil.getColumnIndexOrThrow(_cursor, "descripcion");
           final List<ProductEntity> _result = new ArrayList<ProductEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductEntity _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpNombre;
             if (_cursor.isNull(_cursorIndexOfNombre)) {
               _tmpNombre = null;
@@ -226,15 +368,25 @@ public final class ProductsDao_Impl implements ProductsDao {
             } else {
               _tmpImg = _cursor.getString(_cursorIndexOfImg);
             }
-            final int _tmpStock;
-            _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            final Integer _tmpStock;
+            if (_cursor.isNull(_cursorIndexOfStock)) {
+              _tmpStock = null;
+            } else {
+              _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            }
             final String _tmpTipo;
             if (_cursor.isNull(_cursorIndexOfTipo)) {
               _tmpTipo = null;
             } else {
               _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
             }
-            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo);
+            final String _tmpDescripcion;
+            if (_cursor.isNull(_cursorIndexOfDescripcion)) {
+              _tmpDescripcion = null;
+            } else {
+              _tmpDescripcion = _cursor.getString(_cursorIndexOfDescripcion);
+            }
+            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo,_tmpDescripcion);
             _result.add(_item);
           }
           return _result;
@@ -247,7 +399,7 @@ public final class ProductsDao_Impl implements ProductsDao {
   }
 
   @Override
-  public Object getByIds(final List<Long> ids,
+  public Object getByIds(final List<Integer> ids,
       final Continuation<? super List<ProductEntity>> $completion) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM products WHERE id IN (");
@@ -258,7 +410,7 @@ public final class ProductsDao_Impl implements ProductsDao {
     final int _argCount = 0 + _inputSize;
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
     int _argIndex = 1;
-    for (Long _item : ids) {
+    for (Integer _item : ids) {
       if (_item == null) {
         _statement.bindNull(_argIndex);
       } else {
@@ -279,11 +431,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           final int _cursorIndexOfImg = CursorUtil.getColumnIndexOrThrow(_cursor, "img");
           final int _cursorIndexOfStock = CursorUtil.getColumnIndexOrThrow(_cursor, "stock");
           final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
+          final int _cursorIndexOfDescripcion = CursorUtil.getColumnIndexOrThrow(_cursor, "descripcion");
           final List<ProductEntity> _result = new ArrayList<ProductEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductEntity _item_1;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpNombre;
             if (_cursor.isNull(_cursorIndexOfNombre)) {
               _tmpNombre = null;
@@ -298,15 +451,25 @@ public final class ProductsDao_Impl implements ProductsDao {
             } else {
               _tmpImg = _cursor.getString(_cursorIndexOfImg);
             }
-            final int _tmpStock;
-            _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            final Integer _tmpStock;
+            if (_cursor.isNull(_cursorIndexOfStock)) {
+              _tmpStock = null;
+            } else {
+              _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            }
             final String _tmpTipo;
             if (_cursor.isNull(_cursorIndexOfTipo)) {
               _tmpTipo = null;
             } else {
               _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
             }
-            _item_1 = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo);
+            final String _tmpDescripcion;
+            if (_cursor.isNull(_cursorIndexOfDescripcion)) {
+              _tmpDescripcion = null;
+            } else {
+              _tmpDescripcion = _cursor.getString(_cursorIndexOfDescripcion);
+            }
+            _item_1 = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo,_tmpDescripcion);
             _result.add(_item_1);
           }
           return _result;
@@ -319,7 +482,7 @@ public final class ProductsDao_Impl implements ProductsDao {
   }
 
   @Override
-  public Object getNamesByIds(final List<Long> ids,
+  public Object getNamesByIds(final List<Integer> ids,
       final Continuation<? super List<ProductNameProjection>> $completion) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT id, nombre FROM products WHERE id IN (");
@@ -330,7 +493,7 @@ public final class ProductsDao_Impl implements ProductsDao {
     final int _argCount = 0 + _inputSize;
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
     int _argIndex = 1;
-    for (Long _item : ids) {
+    for (Integer _item : ids) {
       if (_item == null) {
         _statement.bindNull(_argIndex);
       } else {
@@ -350,8 +513,8 @@ public final class ProductsDao_Impl implements ProductsDao {
           final List<ProductNameProjection> _result = new ArrayList<ProductNameProjection>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductNameProjection _item_1;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpNombre;
             if (_cursor.isNull(_cursorIndexOfNombre)) {
               _tmpNombre = null;
@@ -386,11 +549,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           final int _cursorIndexOfImg = CursorUtil.getColumnIndexOrThrow(_cursor, "img");
           final int _cursorIndexOfStock = CursorUtil.getColumnIndexOrThrow(_cursor, "stock");
           final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
+          final int _cursorIndexOfDescripcion = CursorUtil.getColumnIndexOrThrow(_cursor, "descripcion");
           final List<ProductEntity> _result = new ArrayList<ProductEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductEntity _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpNombre;
             if (_cursor.isNull(_cursorIndexOfNombre)) {
               _tmpNombre = null;
@@ -405,15 +569,25 @@ public final class ProductsDao_Impl implements ProductsDao {
             } else {
               _tmpImg = _cursor.getString(_cursorIndexOfImg);
             }
-            final int _tmpStock;
-            _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            final Integer _tmpStock;
+            if (_cursor.isNull(_cursorIndexOfStock)) {
+              _tmpStock = null;
+            } else {
+              _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            }
             final String _tmpTipo;
             if (_cursor.isNull(_cursorIndexOfTipo)) {
               _tmpTipo = null;
             } else {
               _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
             }
-            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo);
+            final String _tmpDescripcion;
+            if (_cursor.isNull(_cursorIndexOfDescripcion)) {
+              _tmpDescripcion = null;
+            } else {
+              _tmpDescripcion = _cursor.getString(_cursorIndexOfDescripcion);
+            }
+            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo,_tmpDescripcion);
             _result.add(_item);
           }
           return _result;
@@ -445,11 +619,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           final int _cursorIndexOfImg = CursorUtil.getColumnIndexOrThrow(_cursor, "img");
           final int _cursorIndexOfStock = CursorUtil.getColumnIndexOrThrow(_cursor, "stock");
           final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
+          final int _cursorIndexOfDescripcion = CursorUtil.getColumnIndexOrThrow(_cursor, "descripcion");
           final List<ProductEntity> _result = new ArrayList<ProductEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final ProductEntity _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpNombre;
             if (_cursor.isNull(_cursorIndexOfNombre)) {
               _tmpNombre = null;
@@ -464,15 +639,25 @@ public final class ProductsDao_Impl implements ProductsDao {
             } else {
               _tmpImg = _cursor.getString(_cursorIndexOfImg);
             }
-            final int _tmpStock;
-            _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            final Integer _tmpStock;
+            if (_cursor.isNull(_cursorIndexOfStock)) {
+              _tmpStock = null;
+            } else {
+              _tmpStock = _cursor.getInt(_cursorIndexOfStock);
+            }
             final String _tmpTipo;
             if (_cursor.isNull(_cursorIndexOfTipo)) {
               _tmpTipo = null;
             } else {
               _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
             }
-            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo);
+            final String _tmpDescripcion;
+            if (_cursor.isNull(_cursorIndexOfDescripcion)) {
+              _tmpDescripcion = null;
+            } else {
+              _tmpDescripcion = _cursor.getString(_cursorIndexOfDescripcion);
+            }
+            _item = new ProductEntity(_tmpId,_tmpNombre,_tmpPrecio,_tmpImg,_tmpStock,_tmpTipo,_tmpDescripcion);
             _result.add(_item);
           }
           return _result;

@@ -19,7 +19,8 @@ object ProfileDataStore {
         val name: String = "",
         val phone: String = "",
         val bio: String = "",
-        val avatarUri: String? = null
+        val avatarUri: String? = null,
+        val email: String = ""
     )
 
     fun observe(context: Context): Flow<Profile> =
@@ -28,7 +29,9 @@ object ProfileDataStore {
                 name = p[KEY_NAME] ?: "",
                 phone = p[KEY_PHONE] ?: "",
                 bio = p[KEY_BIO] ?: "",
-                avatarUri = p[KEY_AVATAR]
+                avatarUri = p[KEY_AVATAR],
+
+
             )
         }
 

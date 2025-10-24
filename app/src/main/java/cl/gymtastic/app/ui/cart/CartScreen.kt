@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +28,10 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartScreen(nav: NavController) {
+fun CartScreen(
+    nav: NavController,
+    windowSizeClass: WindowSizeClass // <-- PARÁMETRO AÑADIDO
+) {
     val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
@@ -52,7 +57,17 @@ fun CartScreen(nav: NavController) {
     val money = remember {
         NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply { maximumFractionDigits = 0 }
     }
-    val total = items.sumOf { it.qty * it.unitPrice }.toInt()
+    val total = items.sumOf { it.qty * it.unitPrice }
+
+    // Reacciona al tamaño de pantalla
+    val widthSizeClass = windowSizeClass.widthSizeClass
+    val isCompact = widthSizeClass == WindowWidthSizeClass.Compact
+    val contentModifier = if (isCompact) {
+        Modifier.fillMaxSize()
+    } else {
+        Modifier.fillMaxSize().width(600.dp) // Ancho fijo para tablets
+    }
+    val horizontalPadding = if (isCompact) 16.dp else 0.dp // Sin padding lateral en tablets
 
     Scaffold(
         topBar = {
@@ -89,12 +104,14 @@ fun CartScreen(nav: NavController) {
                 .fillMaxSize()
                 .background(bg)
                 .padding(padding)
-                .padding(16.dp)
+                // Padding vertical general, el horizontal se aplica dinámicamente
+                .padding(vertical = 16.dp, horizontal = horizontalPadding),
+            contentAlignment = Alignment.TopCenter // Centra el contenido en tablets
         ) {
             if (items.isEmpty()) {
                 // Estado vacío elegante
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = contentModifier, // <-- APLICAMOS MODIFICADOR
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -109,7 +126,7 @@ fun CartScreen(nav: NavController) {
                     }
                 }
             } else {
-                Column(Modifier.fillMaxSize()) {
+                Column(modifier = contentModifier) { // <-- APLICAMOS MODIFICADOR
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(12.dp)

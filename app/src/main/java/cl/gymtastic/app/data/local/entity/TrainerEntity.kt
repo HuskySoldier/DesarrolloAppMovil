@@ -10,5 +10,5 @@ data class TrainerEntity(
     val fono: String,
     val email: String,
     val especialidad: String,
-    val foto: String? = null
+    val img: String? = null
 )

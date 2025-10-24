@@ -44,14 +44,18 @@ public final class AttendanceDao_Impl implements AttendanceDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `attendance` (`id`,`userId`,`timestamp`,`checkOutTimestamp`) VALUES (nullif(?, 0),?,?,?)";
+        return "INSERT OR ABORT INTO `attendance` (`id`,`userEmail`,`timestamp`,`checkOutTimestamp`) VALUES (nullif(?, 0),?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final AttendanceEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindLong(2, entity.getUserId());
+        if (entity.getUserEmail() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getUserEmail());
+        }
         statement.bindLong(3, entity.getTimestamp());
         if (entity.getCheckOutTimestamp() == null) {
           statement.bindNull(4);
@@ -64,11 +68,7 @@ public final class AttendanceDao_Impl implements AttendanceDao {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "\n"
-                + "        UPDATE attendance\n"
-                + "        SET checkOutTimestamp = ?\n"
-                + "        WHERE id = ?\n"
-                + "    ";
+        final String _query = "UPDATE attendance SET checkOutTimestamp = ? WHERE id = ?";
         return _query;
       }
     };
@@ -121,11 +121,15 @@ public final class AttendanceDao_Impl implements AttendanceDao {
   }
 
   @Override
-  public Flow<List<AttendanceEntity>> observeByUser(final long userId) {
-    final String _sql = "SELECT * FROM attendance WHERE userId = ? ORDER BY timestamp DESC";
+  public Flow<List<AttendanceEntity>> observeByUser(final String userEmail) {
+    final String _sql = "SELECT * FROM attendance WHERE userEmail = ? ORDER BY timestamp DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, userId);
+    if (userEmail == null) {
+      _statement.bindNull(_argIndex);
+    } else {
+      _statement.bindString(_argIndex, userEmail);
+    }
     return CoroutinesRoom.createFlow(__db, false, new String[] {"attendance"}, new Callable<List<AttendanceEntity>>() {
       @Override
       @NonNull
@@ -133,7 +137,7 @@ public final class AttendanceDao_Impl implements AttendanceDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
+          final int _cursorIndexOfUserEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "userEmail");
           final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
           final int _cursorIndexOfCheckOutTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "checkOutTimestamp");
           final List<AttendanceEntity> _result = new ArrayList<AttendanceEntity>(_cursor.getCount());
@@ -141,8 +145,12 @@ public final class AttendanceDao_Impl implements AttendanceDao {
             final AttendanceEntity _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
-            final long _tmpUserId;
-            _tmpUserId = _cursor.getLong(_cursorIndexOfUserId);
+            final String _tmpUserEmail;
+            if (_cursor.isNull(_cursorIndexOfUserEmail)) {
+              _tmpUserEmail = null;
+            } else {
+              _tmpUserEmail = _cursor.getString(_cursorIndexOfUserEmail);
+            }
             final long _tmpTimestamp;
             _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
             final Long _tmpCheckOutTimestamp;
@@ -151,7 +159,7 @@ public final class AttendanceDao_Impl implements AttendanceDao {
             } else {
               _tmpCheckOutTimestamp = _cursor.getLong(_cursorIndexOfCheckOutTimestamp);
             }
-            _item = new AttendanceEntity(_tmpId,_tmpUserId,_tmpTimestamp,_tmpCheckOutTimestamp);
+            _item = new AttendanceEntity(_tmpId,_tmpUserEmail,_tmpTimestamp,_tmpCheckOutTimestamp);
             _result.add(_item);
           }
           return _result;
@@ -168,17 +176,16 @@ public final class AttendanceDao_Impl implements AttendanceDao {
   }
 
   @Override
-  public Object findLastOpenAttendanceId(final long userId,
+  public Object findLastOpenAttendanceId(final String userEmail,
       final Continuation<? super Long> $completion) {
-    final String _sql = "\n"
-            + "        SELECT id FROM attendance\n"
-            + "        WHERE userId = ? AND checkOutTimestamp IS NULL\n"
-            + "        ORDER BY timestamp DESC\n"
-            + "        LIMIT 1\n"
-            + "    ";
+    final String _sql = "SELECT id FROM attendance WHERE userEmail = ? AND checkOutTimestamp IS NULL ORDER BY timestamp DESC LIMIT 1";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, userId);
+    if (userEmail == null) {
+      _statement.bindNull(_argIndex);
+    } else {
+      _statement.bindString(_argIndex, userEmail);
+    }
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
       @Override

@@ -7,19 +7,21 @@ import cl.gymtastic.app.data.local.entity.AttendanceEntity
 class AttendanceRepository(context: Context) {
     private val db = GymTasticDatabase.get(context)
 
-    fun observe(userId: Long) = db.attendance().observeByUser(userId)
 
-    suspend fun checkIn(userId: Long) {
-        db.attendance().insert(
-            AttendanceEntity(userId = userId, timestamp = System.currentTimeMillis())
-        )
-    }
+        // ...
+        fun observe(userEmail: String) = db.attendance().observeByUser(userEmail) // <-- CAMBIO
 
-    suspend fun checkOut(userId: Long) {
-        val id = db.attendance().findLastOpenAttendanceId(userId)
-        if (id != null) {
-            db.attendance().updateCheckOutById(id, System.currentTimeMillis())
+        suspend fun checkIn(userEmail: String) { // <-- CAMBIO
+            db.attendance().insert(
+                AttendanceEntity(userEmail = userEmail, timestamp = System.currentTimeMillis()) // <-- CAMBIO
+            )
+        }
+
+        suspend fun checkOut(userEmail: String) { // <-- CAMBIO
+            val id = db.attendance().findLastOpenAttendanceId(userEmail) // <-- CAMBIO
+            if (id != null) {
+                db.attendance().updateCheckOutById(id, System.currentTimeMillis())
+            }
         }
     }
-}
 

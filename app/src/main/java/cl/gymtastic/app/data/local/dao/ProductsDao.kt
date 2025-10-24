@@ -1,21 +1,23 @@
 package cl.gymtastic.app.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import cl.gymtastic.app.data.local.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
 // Proyección liviana para id + nombre (ya la tenías)
 data class ProductNameProjection(
-    val id: Long,
+    val id: Int,
     val nombre: String
 )
 
 // ✅ Proyección para leer stock
 data class ProductStockProjection(
-    val id: Long,
+    val id: Int,
     val stock: Int?
 )
 
@@ -28,19 +30,25 @@ interface ProductsDao {
     suspend fun insertAll(products: List<ProductEntity>)
 
     @Query("SELECT id, stock FROM products WHERE id IN (:ids)")
-    suspend fun getStockByIds(ids: List<Long>): List<ProductStockProjection>
+    suspend fun getStockByIds(ids: List<Int>): List<ProductStockProjection>
 
 
     @Query("SELECT * FROM products")
     suspend fun getAll(): List<ProductEntity>
 
     @Query("SELECT * FROM products WHERE id IN (:ids)")
-    suspend fun getByIds(ids: List<Long>): List<ProductEntity>
+    suspend fun getByIds(ids: List<Int>): List<ProductEntity>
+
+    @Delete
+    suspend fun delete(product: ProductEntity)
+
+    @Upsert
+    suspend fun save(product: ProductEntity)
 
     @Query("SELECT id, nombre FROM products WHERE id IN (:ids)")
-    suspend fun getNamesByIds(ids: List<Long>): List<ProductNameProjection>
+    suspend fun getNamesByIds(ids: List<Int>): List<ProductNameProjection>
 
-    // 🔎 Flujos por tipo (si ya los tienes, mantén los tuyos)
+    // Flujos por tipo
     @Query("SELECT * FROM products WHERE tipo = 'plan'")
     fun observePlanes(): Flow<List<ProductEntity>>
 
@@ -56,5 +64,5 @@ interface ProductsDao {
           AND stock IS NOT NULL
           AND stock >= :qty
     """)
-    suspend fun tryDecrementStock(id: Long, qty: Int): Int
+    suspend fun tryDecrementStock(id: Int, qty: Int): Int
 }
