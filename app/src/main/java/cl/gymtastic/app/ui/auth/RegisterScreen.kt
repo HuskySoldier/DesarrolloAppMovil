@@ -128,7 +128,7 @@ fun RegisterScreen(
 
     // Botón habilitado solo si todo ok
     val canSubmit by derivedStateOf {
-        !loading && isEmailValid && isNameValid && isPassValid && passwordsMatch && acceptTerms
+        !loading && isEmailValid && isNameValid && isPassValid && passwordsMatch
     }
 
     fun showError(msg: String) {
@@ -145,7 +145,6 @@ fun RegisterScreen(
             !isNameValid -> showError("Ingresa tu nombre")
             !isPassValid -> showError("La contraseña debe tener al menos 6 caracteres")
             !passwordsMatch -> showError("Las contraseñas no coinciden")
-            !acceptTerms -> showError("Debes aceptar los Términos y la Política de Privacidad")
             else -> {
                 loading = true
                 bannerMsg = null

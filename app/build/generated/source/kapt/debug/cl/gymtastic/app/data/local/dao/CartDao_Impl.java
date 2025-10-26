@@ -85,7 +85,7 @@ public final class CartDao_Impl implements CartDao {
   }
 
   @Override
-  public Object upsert(final CartItemEntity item, final Continuation<? super Long> arg1) {
+  public Object upsert(final CartItemEntity item, final Continuation<? super Long> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
@@ -99,11 +99,11 @@ public final class CartDao_Impl implements CartDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object delete(final CartItemEntity item, final Continuation<? super Unit> arg1) {
+  public Object delete(final CartItemEntity item, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -117,11 +117,11 @@ public final class CartDao_Impl implements CartDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object clear(final Continuation<? super Unit> arg0) {
+  public Object clear(final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -140,7 +140,7 @@ public final class CartDao_Impl implements CartDao {
           __preparedStmtOfClear.release(_stmt);
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @Override
@@ -185,7 +185,7 @@ public final class CartDao_Impl implements CartDao {
   }
 
   @Override
-  public Object getQtyFor(final long productId, final Continuation<? super Integer> arg1) {
+  public Object getQtyFor(final long productId, final Continuation<? super Integer> $completion) {
     final String _sql = "SELECT COALESCE(SUM(qty), 0) FROM cart_items WHERE productId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -215,12 +215,12 @@ public final class CartDao_Impl implements CartDao {
           _statement.release();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object removeByProductIds(final List<Long> productIds,
-      final Continuation<? super Unit> arg1) {
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -250,7 +250,7 @@ public final class CartDao_Impl implements CartDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @NonNull

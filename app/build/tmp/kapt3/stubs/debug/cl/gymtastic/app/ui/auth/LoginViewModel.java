@@ -29,13 +29,16 @@ public final class LoginViewModel extends androidx.lifecycle.ViewModel {
     private final void setError(java.lang.String p0) {
     }
     
+    /**
+     * Limpia el mensaje de error actual.
+     */
+    public final void clearError() {
+    }
+    
     public final void login(@org.jetbrains.annotations.NotNull()
     android.content.Context context, @org.jetbrains.annotations.NotNull()
     java.lang.String emailRaw, @org.jetbrains.annotations.NotNull()
     java.lang.String passRaw, @org.jetbrains.annotations.NotNull()
     kotlin.jvm.functions.Function0<kotlin.Unit> onSuccess) {
-    }
-    
-    public final void clearError() {
     }
 }

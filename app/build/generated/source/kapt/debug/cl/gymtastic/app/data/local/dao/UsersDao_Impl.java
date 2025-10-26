@@ -49,9 +49,11 @@ public final class UsersDao_Impl implements UsersDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteByEmail;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpdateAvatarUri;
+
   private final SharedSQLiteStatement __preparedStmtOfUpdateUserRole;
 
-  private final SharedSQLiteStatement __preparedStmtOfUpdateAvatarUri;
+  private final SharedSQLiteStatement __preparedStmtOfUpdateProfileDetails;
 
   public UsersDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -59,7 +61,7 @@ public final class UsersDao_Impl implements UsersDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR IGNORE INTO `users` (`email`,`passHash`,`nombre`,`rol`,`planEndMillis`,`sedeId`,`sedeName`,`sedeLat`,`sedeLng`,`avatarUri`) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR IGNORE INTO `users` (`email`,`passHash`,`nombre`,`rol`,`planEndMillis`,`sedeId`,`sedeName`,`sedeLat`,`sedeLng`,`avatarUri`,`fono`,`bio`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -114,6 +116,16 @@ public final class UsersDao_Impl implements UsersDao {
           statement.bindNull(10);
         } else {
           statement.bindString(10, entity.getAvatarUri());
+        }
+        if (entity.getFono() == null) {
+          statement.bindNull(11);
+        } else {
+          statement.bindString(11, entity.getFono());
+        }
+        if (entity.getBio() == null) {
+          statement.bindNull(12);
+        } else {
+          statement.bindString(12, entity.getBio());
         }
       }
     };
@@ -138,7 +150,7 @@ public final class UsersDao_Impl implements UsersDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `users` SET `email` = ?,`passHash` = ?,`nombre` = ?,`rol` = ?,`planEndMillis` = ?,`sedeId` = ?,`sedeName` = ?,`sedeLat` = ?,`sedeLng` = ?,`avatarUri` = ? WHERE `email` = ?";
+        return "UPDATE OR ABORT `users` SET `email` = ?,`passHash` = ?,`nombre` = ?,`rol` = ?,`planEndMillis` = ?,`sedeId` = ?,`sedeName` = ?,`sedeLat` = ?,`sedeLng` = ?,`avatarUri` = ?,`fono` = ?,`bio` = ? WHERE `email` = ?";
       }
 
       @Override
@@ -194,10 +206,20 @@ public final class UsersDao_Impl implements UsersDao {
         } else {
           statement.bindString(10, entity.getAvatarUri());
         }
-        if (entity.getEmail() == null) {
+        if (entity.getFono() == null) {
           statement.bindNull(11);
         } else {
-          statement.bindString(11, entity.getEmail());
+          statement.bindString(11, entity.getFono());
+        }
+        if (entity.getBio() == null) {
+          statement.bindNull(12);
+        } else {
+          statement.bindString(12, entity.getBio());
+        }
+        if (entity.getEmail() == null) {
+          statement.bindNull(13);
+        } else {
+          statement.bindString(13, entity.getEmail());
         }
       }
     };
@@ -225,14 +247,6 @@ public final class UsersDao_Impl implements UsersDao {
         return _query;
       }
     };
-    this.__preparedStmtOfUpdateUserRole = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE users SET rol = ? WHERE email = ?";
-        return _query;
-      }
-    };
     this.__preparedStmtOfUpdateAvatarUri = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
@@ -241,10 +255,26 @@ public final class UsersDao_Impl implements UsersDao {
         return _query;
       }
     };
+    this.__preparedStmtOfUpdateUserRole = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE users SET rol = ? WHERE email = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfUpdateProfileDetails = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE users SET nombre = ?, fono = ?, bio = ? WHERE email = ?";
+        return _query;
+      }
+    };
   }
 
   @Override
-  public Object insert(final UserEntity user, final Continuation<? super Long> arg1) {
+  public Object insert(final UserEntity user, final Continuation<? super Long> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
       @Override
       @NonNull
@@ -258,11 +288,11 @@ public final class UsersDao_Impl implements UsersDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object delete(final UserEntity user, final Continuation<? super Integer> arg1) {
+  public Object delete(final UserEntity user, final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -277,11 +307,11 @@ public final class UsersDao_Impl implements UsersDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object update(final UserEntity user, final Continuation<? super Integer> arg1) {
+  public Object update(final UserEntity user, final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -296,13 +326,13 @@ public final class UsersDao_Impl implements UsersDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Object updateSubscription(final String email, final Long planEndMillis,
       final Integer sedeId, final String sedeName, final Double sedeLat, final Double sedeLng,
-      final Continuation<? super Unit> arg6) {
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -357,12 +387,12 @@ public final class UsersDao_Impl implements UsersDao {
           __preparedStmtOfUpdateSubscription.release(_stmt);
         }
       }
-    }, arg6);
+    }, $completion);
   }
 
   @Override
   public Object updatePasswordHash(final String email, final String newPassHash,
-      final Continuation<? super Integer> arg2) {
+      final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -393,11 +423,11 @@ public final class UsersDao_Impl implements UsersDao {
           __preparedStmtOfUpdatePasswordHash.release(_stmt);
         }
       }
-    }, arg2);
+    }, $completion);
   }
 
   @Override
-  public Object deleteByEmail(final String email, final Continuation<? super Integer> arg1) {
+  public Object deleteByEmail(final String email, final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -422,48 +452,12 @@ public final class UsersDao_Impl implements UsersDao {
           __preparedStmtOfDeleteByEmail.release(_stmt);
         }
       }
-    }, arg1);
-  }
-
-  @Override
-  public Object updateUserRole(final String email, final String newRole,
-      final Continuation<? super Integer> arg2) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
-      @Override
-      @NonNull
-      public Integer call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateUserRole.acquire();
-        int _argIndex = 1;
-        if (newRole == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindString(_argIndex, newRole);
-        }
-        _argIndex = 2;
-        if (email == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindString(_argIndex, email);
-        }
-        try {
-          __db.beginTransaction();
-          try {
-            final Integer _result = _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return _result;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfUpdateUserRole.release(_stmt);
-        }
-      }
-    }, arg2);
+    }, $completion);
   }
 
   @Override
   public Object updateAvatarUri(final String email, final String avatarUri,
-      final Continuation<? super Integer> arg2) {
+      final Continuation<? super Integer> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -494,11 +488,95 @@ public final class UsersDao_Impl implements UsersDao {
           __preparedStmtOfUpdateAvatarUri.release(_stmt);
         }
       }
-    }, arg2);
+    }, $completion);
   }
 
   @Override
-  public Object count(final Continuation<? super Integer> arg0) {
+  public Object updateUserRole(final String email, final String newRole,
+      final Continuation<? super Integer> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateUserRole.acquire();
+        int _argIndex = 1;
+        if (newRole == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, newRole);
+        }
+        _argIndex = 2;
+        if (email == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, email);
+        }
+        try {
+          __db.beginTransaction();
+          try {
+            final Integer _result = _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateUserRole.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateProfileDetails(final String email, final String newName, final String newFono,
+      final String newBio, final Continuation<? super Integer> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateProfileDetails.acquire();
+        int _argIndex = 1;
+        if (newName == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, newName);
+        }
+        _argIndex = 2;
+        if (newFono == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, newFono);
+        }
+        _argIndex = 3;
+        if (newBio == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, newBio);
+        }
+        _argIndex = 4;
+        if (email == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, email);
+        }
+        try {
+          __db.beginTransaction();
+          try {
+            final Integer _result = _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateProfileDetails.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object count(final Continuation<? super Integer> $completion) {
     final String _sql = "SELECT COUNT(*) FROM users";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -526,11 +604,12 @@ public final class UsersDao_Impl implements UsersDao {
           _statement.release();
         }
       }
-    }, arg0);
+    }, $completion);
   }
 
   @Override
-  public Object findByEmail(final String email, final Continuation<? super UserEntity> arg1) {
+  public Object findByEmail(final String email,
+      final Continuation<? super UserEntity> $completion) {
     final String _sql = "SELECT * FROM users WHERE email = ? LIMIT 1";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -556,6 +635,8 @@ public final class UsersDao_Impl implements UsersDao {
           final int _cursorIndexOfSedeLat = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLat");
           final int _cursorIndexOfSedeLng = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLng");
           final int _cursorIndexOfAvatarUri = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUri");
+          final int _cursorIndexOfFono = CursorUtil.getColumnIndexOrThrow(_cursor, "fono");
+          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final UserEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpEmail;
@@ -618,7 +699,19 @@ public final class UsersDao_Impl implements UsersDao {
             } else {
               _tmpAvatarUri = _cursor.getString(_cursorIndexOfAvatarUri);
             }
-            _result = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri);
+            final String _tmpFono;
+            if (_cursor.isNull(_cursorIndexOfFono)) {
+              _tmpFono = null;
+            } else {
+              _tmpFono = _cursor.getString(_cursorIndexOfFono);
+            }
+            final String _tmpBio;
+            if (_cursor.isNull(_cursorIndexOfBio)) {
+              _tmpBio = null;
+            } else {
+              _tmpBio = _cursor.getString(_cursorIndexOfBio);
+            }
+            _result = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri,_tmpFono,_tmpBio);
           } else {
             _result = null;
           }
@@ -628,7 +721,7 @@ public final class UsersDao_Impl implements UsersDao {
           _statement.release();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
@@ -657,6 +750,8 @@ public final class UsersDao_Impl implements UsersDao {
           final int _cursorIndexOfSedeLat = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLat");
           final int _cursorIndexOfSedeLng = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLng");
           final int _cursorIndexOfAvatarUri = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUri");
+          final int _cursorIndexOfFono = CursorUtil.getColumnIndexOrThrow(_cursor, "fono");
+          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final UserEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpEmail;
@@ -719,7 +814,19 @@ public final class UsersDao_Impl implements UsersDao {
             } else {
               _tmpAvatarUri = _cursor.getString(_cursorIndexOfAvatarUri);
             }
-            _result = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri);
+            final String _tmpFono;
+            if (_cursor.isNull(_cursorIndexOfFono)) {
+              _tmpFono = null;
+            } else {
+              _tmpFono = _cursor.getString(_cursorIndexOfFono);
+            }
+            final String _tmpBio;
+            if (_cursor.isNull(_cursorIndexOfBio)) {
+              _tmpBio = null;
+            } else {
+              _tmpBio = _cursor.getString(_cursorIndexOfBio);
+            }
+            _result = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri,_tmpFono,_tmpBio);
           } else {
             _result = null;
           }
@@ -762,6 +869,8 @@ public final class UsersDao_Impl implements UsersDao {
           final int _cursorIndexOfSedeLat = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLat");
           final int _cursorIndexOfSedeLng = CursorUtil.getColumnIndexOrThrow(_cursor, "sedeLng");
           final int _cursorIndexOfAvatarUri = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUri");
+          final int _cursorIndexOfFono = CursorUtil.getColumnIndexOrThrow(_cursor, "fono");
+          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final List<UserEntity> _result = new ArrayList<UserEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final UserEntity _item;
@@ -825,7 +934,19 @@ public final class UsersDao_Impl implements UsersDao {
             } else {
               _tmpAvatarUri = _cursor.getString(_cursorIndexOfAvatarUri);
             }
-            _item = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri);
+            final String _tmpFono;
+            if (_cursor.isNull(_cursorIndexOfFono)) {
+              _tmpFono = null;
+            } else {
+              _tmpFono = _cursor.getString(_cursorIndexOfFono);
+            }
+            final String _tmpBio;
+            if (_cursor.isNull(_cursorIndexOfBio)) {
+              _tmpBio = null;
+            } else {
+              _tmpBio = _cursor.getString(_cursorIndexOfBio);
+            }
+            _item = new UserEntity(_tmpEmail,_tmpPassHash,_tmpNombre,_tmpRol,_tmpPlanEndMillis,_tmpSedeId,_tmpSedeName,_tmpSedeLat,_tmpSedeLng,_tmpAvatarUri,_tmpFono,_tmpBio);
             _result.add(_item);
           }
           return _result;

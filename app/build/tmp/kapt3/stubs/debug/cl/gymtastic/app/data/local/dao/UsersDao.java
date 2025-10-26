@@ -1,6 +1,6 @@
 package cl.gymtastic.app.data.local.dao;
 
-@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000D\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0010\t\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010 \n\u0002\b\t\n\u0002\u0010\u0002\n\u0002\b\u0004\n\u0002\u0010\u0006\n\u0002\b\u0005\bg\u0018\u00002\u00020\u0001J\u000e\u0010\u0002\u001a\u00020\u0003H\u00a7@\u00a2\u0006\u0002\u0010\u0004J\u0016\u0010\u0005\u001a\u00020\u00032\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ\u0016\u0010\t\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\fJ\u0018\u0010\r\u001a\u0004\u0018\u00010\u00072\u0006\u0010\n\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\fJ\u0016\u0010\u000e\u001a\u00020\u000f2\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ\u001c\u0010\u0010\u001a\u000e\u0012\n\u0012\b\u0012\u0004\u0012\u00020\u00070\u00120\u00112\u0006\u0010\u0013\u001a\u00020\u000bH\'J\u0018\u0010\u0014\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00070\u00112\u0006\u0010\n\u001a\u00020\u000bH\'J\u0016\u0010\u0015\u001a\u00020\u00032\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ \u0010\u0016\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\b\u0010\u0017\u001a\u0004\u0018\u00010\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018J\u001e\u0010\u0019\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\u0006\u0010\u001a\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018JH\u0010\u001b\u001a\u00020\u001c2\u0006\u0010\n\u001a\u00020\u000b2\b\u0010\u001d\u001a\u0004\u0018\u00010\u000f2\b\u0010\u001e\u001a\u0004\u0018\u00010\u00032\b\u0010\u001f\u001a\u0004\u0018\u00010\u000b2\b\u0010 \u001a\u0004\u0018\u00010!2\b\u0010\"\u001a\u0004\u0018\u00010!H\u00a7@\u00a2\u0006\u0002\u0010#J\u001e\u0010$\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\u0006\u0010%\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018\u00a8\u0006&"}, d2 = {"Lcl/gymtastic/app/data/local/dao/UsersDao;", "", "count", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "delete", "user", "Lcl/gymtastic/app/data/local/entity/UserEntity;", "(Lcl/gymtastic/app/data/local/entity/UserEntity;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "deleteByEmail", "email", "", "(Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "findByEmail", "insert", "", "observeAllExcept", "Lkotlinx/coroutines/flow/Flow;", "", "excludeEmail", "observeByEmail", "update", "updateAvatarUri", "avatarUri", "(Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "updatePasswordHash", "newPassHash", "updateSubscription", "", "planEndMillis", "sedeId", "sedeName", "sedeLat", "", "sedeLng", "(Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "updateUserRole", "newRole", "app_debug"})
+@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000D\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0010\t\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010 \n\u0002\b\u000e\n\u0002\u0010\u0002\n\u0002\b\u0004\n\u0002\u0010\u0006\n\u0002\b\u0005\bg\u0018\u00002\u00020\u0001J\u000e\u0010\u0002\u001a\u00020\u0003H\u00a7@\u00a2\u0006\u0002\u0010\u0004J\u0016\u0010\u0005\u001a\u00020\u00032\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ\u0016\u0010\t\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\fJ\u0018\u0010\r\u001a\u0004\u0018\u00010\u00072\u0006\u0010\n\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\fJ\u0016\u0010\u000e\u001a\u00020\u000f2\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ\u001c\u0010\u0010\u001a\u000e\u0012\n\u0012\b\u0012\u0004\u0012\u00020\u00070\u00120\u00112\u0006\u0010\u0013\u001a\u00020\u000bH\'J\u0018\u0010\u0014\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00070\u00112\u0006\u0010\n\u001a\u00020\u000bH\'J\u0016\u0010\u0015\u001a\u00020\u00032\u0006\u0010\u0006\u001a\u00020\u0007H\u00a7@\u00a2\u0006\u0002\u0010\bJ \u0010\u0016\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\b\u0010\u0017\u001a\u0004\u0018\u00010\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018J\u001e\u0010\u0019\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\u0006\u0010\u001a\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018J2\u0010\u001b\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\u0006\u0010\u001c\u001a\u00020\u000b2\b\u0010\u001d\u001a\u0004\u0018\u00010\u000b2\b\u0010\u001e\u001a\u0004\u0018\u00010\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u001fJH\u0010 \u001a\u00020!2\u0006\u0010\n\u001a\u00020\u000b2\b\u0010\"\u001a\u0004\u0018\u00010\u000f2\b\u0010#\u001a\u0004\u0018\u00010\u00032\b\u0010$\u001a\u0004\u0018\u00010\u000b2\b\u0010%\u001a\u0004\u0018\u00010&2\b\u0010\'\u001a\u0004\u0018\u00010&H\u00a7@\u00a2\u0006\u0002\u0010(J\u001e\u0010)\u001a\u00020\u00032\u0006\u0010\n\u001a\u00020\u000b2\u0006\u0010*\u001a\u00020\u000bH\u00a7@\u00a2\u0006\u0002\u0010\u0018\u00a8\u0006+"}, d2 = {"Lcl/gymtastic/app/data/local/dao/UsersDao;", "", "count", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "delete", "user", "Lcl/gymtastic/app/data/local/entity/UserEntity;", "(Lcl/gymtastic/app/data/local/entity/UserEntity;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "deleteByEmail", "email", "", "(Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "findByEmail", "insert", "", "observeAllExcept", "Lkotlinx/coroutines/flow/Flow;", "", "excludeEmail", "observeByEmail", "update", "updateAvatarUri", "avatarUri", "(Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "updatePasswordHash", "newPassHash", "updateProfileDetails", "newName", "newFono", "newBio", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "updateSubscription", "", "planEndMillis", "sedeId", "sedeName", "sedeLat", "", "sedeLng", "(Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "updateUserRole", "newRole", "app_debug"})
 @androidx.room.Dao()
 public abstract interface UsersDao {
     
@@ -21,6 +21,9 @@ public abstract interface UsersDao {
     cl.gymtastic.app.data.local.entity.UserEntity user, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Long> $completion);
     
+    /**
+     * Actualiza el estado de suscripción
+     */
     @androidx.room.Query(value = "UPDATE users SET planEndMillis=:planEndMillis, sedeId=:sedeId, sedeName=:sedeName, sedeLat=:sedeLat, sedeLng=:sedeLng WHERE email = :email")
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object updateSubscription(@org.jetbrains.annotations.NotNull()
@@ -32,6 +35,9 @@ public abstract interface UsersDao {
     java.lang.Double sedeLng, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super kotlin.Unit> $completion);
     
+    /**
+     * Observa un usuario por email
+     */
     @androidx.room.Query(value = "SELECT * FROM users WHERE email = :email LIMIT 1")
     @org.jetbrains.annotations.NotNull()
     public abstract kotlinx.coroutines.flow.Flow<cl.gymtastic.app.data.local.entity.UserEntity> observeByEmail(@org.jetbrains.annotations.NotNull()
@@ -67,6 +73,13 @@ public abstract interface UsersDao {
     cl.gymtastic.app.data.local.entity.UserEntity user, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Integer> $completion);
     
+    @androidx.room.Query(value = "UPDATE users SET avatarUri = :avatarUri WHERE email = :email")
+    @org.jetbrains.annotations.Nullable()
+    public abstract java.lang.Object updateAvatarUri(@org.jetbrains.annotations.NotNull()
+    java.lang.String email, @org.jetbrains.annotations.Nullable()
+    java.lang.String avatarUri, @org.jetbrains.annotations.NotNull()
+    kotlin.coroutines.Continuation<? super java.lang.Integer> $completion);
+    
     @androidx.room.Query(value = "UPDATE users SET rol = :newRole WHERE email = :email")
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object updateUserRole(@org.jetbrains.annotations.NotNull()
@@ -74,10 +87,12 @@ public abstract interface UsersDao {
     java.lang.String newRole, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Integer> $completion);
     
-    @androidx.room.Query(value = "UPDATE users SET avatarUri = :avatarUri WHERE email = :email")
+    @androidx.room.Query(value = "UPDATE users SET nombre = :newName, fono = :newFono, bio = :newBio WHERE email = :email")
     @org.jetbrains.annotations.Nullable()
-    public abstract java.lang.Object updateAvatarUri(@org.jetbrains.annotations.NotNull()
-    java.lang.String email, @org.jetbrains.annotations.Nullable()
-    java.lang.String avatarUri, @org.jetbrains.annotations.NotNull()
+    public abstract java.lang.Object updateProfileDetails(@org.jetbrains.annotations.NotNull()
+    java.lang.String email, @org.jetbrains.annotations.NotNull()
+    java.lang.String newName, @org.jetbrains.annotations.Nullable()
+    java.lang.String newFono, @org.jetbrains.annotations.Nullable()
+    java.lang.String newBio, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Integer> $completion);
 }

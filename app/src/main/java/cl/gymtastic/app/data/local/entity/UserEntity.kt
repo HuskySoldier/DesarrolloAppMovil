@@ -8,7 +8,7 @@ import java.io.Serializable
 data class UserEntity(
     @PrimaryKey val email: String,
     val passHash: String,
-    val nombre: String,
+    val nombre: String, // Este ya existía
     val rol: String,
 
     // --- Campos de Suscripción ---
@@ -18,18 +18,21 @@ data class UserEntity(
     val sedeLat: Double? = null,
     val sedeLng: Double? = null,
 
-     //* URI (como String) de la imagen de perfil del usuario,
-     //* almacenada internamente en la app.
-     //Null si usa la imagen por defecto.
-    val avatarUri: String? = null // <-- AÑADIDO
+    // --- Campo Avatar ---
+    val avatarUri: String? = null,
 
-) : Serializable { // Serializable si necesitas pasarlo entre fragments/actividades
+    // --- NUEVOS CAMPOS DE PERFIL ---
+    /** Teléfono del usuario (opcional) */
+    val fono: String? = null, // <-- AÑADIDO
+    /** Biografía corta del usuario (opcional) */
+    val bio: String? = null // <-- AÑADIDO
 
-    ///** Lógica de negocio para el plan activo */
+) : Serializable {
+
+    /** Lógica de negocio para el plan activo */
     val hasActivePlan: Boolean
         get() {
             val end = planEndMillis ?: return false
             return end > System.currentTimeMillis()
         }
 }
-
