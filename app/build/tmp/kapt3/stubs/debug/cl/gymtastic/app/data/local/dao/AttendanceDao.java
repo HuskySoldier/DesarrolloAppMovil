@@ -4,45 +4,23 @@ package cl.gymtastic.app.data.local.dao;
 @androidx.room.Dao()
 public abstract interface AttendanceDao {
     
-    /**
-     * Inserta un nuevo registro de asistencia.
-     * @param reg La entidad AttendanceEntity a insertar.
-     * @return El ID (rowId) del registro insertado.
-     */
     @androidx.room.Insert()
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object insert(@org.jetbrains.annotations.NotNull()
     cl.gymtastic.app.data.local.entity.AttendanceEntity reg, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Long> $completion);
     
-    /**
-     * Observa (Flow) todos los registros de asistencia para un usuario específico,
-     * ordenados por fecha descendente (más recientes primero).
-     * @param userEmail El email del usuario cuyos registros se quieren observar.
-     * @return Un Flow que emite la lista de AttendanceEntity para ese usuario.
-     */
     @androidx.room.Query(value = "SELECT * FROM attendance WHERE userEmail = :userEmail ORDER BY timestamp DESC")
     @org.jetbrains.annotations.NotNull()
     public abstract kotlinx.coroutines.flow.Flow<java.util.List<cl.gymtastic.app.data.local.entity.AttendanceEntity>> observeByUser(@org.jetbrains.annotations.NotNull()
     java.lang.String userEmail);
     
-    /**
-     * Busca el ID del último registro de check-in que AÚN NO tiene check-out (checkOutTimestamp IS NULL)
-     * para un usuario específico.
-     * @param userEmail El email del usuario.
-     * @return El ID (Long) del último registro abierto, o null si no hay ninguno abierto.
-     */
     @androidx.room.Query(value = "SELECT id FROM attendance WHERE userEmail = :userEmail AND checkOutTimestamp IS NULL ORDER BY timestamp DESC LIMIT 1")
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object findLastOpenAttendanceId(@org.jetbrains.annotations.NotNull()
     java.lang.String userEmail, @org.jetbrains.annotations.NotNull()
     kotlin.coroutines.Continuation<? super java.lang.Long> $completion);
     
-    /**
-     * Actualiza el timestamp de check-out para un registro de asistencia específico, identificado por su ID.
-     * @param attendanceId El ID del registro de asistencia a actualizar.
-     * @param checkOut El timestamp (en milisegundos) del momento del check-out.
-     */
     @androidx.room.Query(value = "UPDATE attendance SET checkOutTimestamp = :checkOut WHERE id = :attendanceId")
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object updateCheckOutById(long attendanceId, long checkOut, @org.jetbrains.annotations.NotNull()

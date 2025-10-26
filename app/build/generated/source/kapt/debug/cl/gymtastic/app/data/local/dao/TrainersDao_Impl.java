@@ -172,8 +172,7 @@ public final class TrainersDao_Impl implements TrainersDao {
   }
 
   @Override
-  public Object insertAll(final List<TrainerEntity> list,
-      final Continuation<? super Unit> $completion) {
+  public Object insertAll(final List<TrainerEntity> list, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -187,11 +186,11 @@ public final class TrainersDao_Impl implements TrainersDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object delete(final TrainerEntity product, final Continuation<? super Unit> $completion) {
+  public Object delete(final TrainerEntity product, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -205,11 +204,11 @@ public final class TrainersDao_Impl implements TrainersDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object save(final TrainerEntity product, final Continuation<? super Unit> $completion) {
+  public Object save(final TrainerEntity product, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -223,7 +222,7 @@ public final class TrainersDao_Impl implements TrainersDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
@@ -294,7 +293,7 @@ public final class TrainersDao_Impl implements TrainersDao {
   }
 
   @Override
-  public Object count(final Continuation<? super Integer> $completion) {
+  public Object count(final Continuation<? super Integer> arg0) {
     final String _sql = "SELECT COUNT(*) FROM trainers";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -322,7 +321,7 @@ public final class TrainersDao_Impl implements TrainersDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg0);
   }
 
   @NonNull

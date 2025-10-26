@@ -53,17 +53,17 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(6) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(8) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passHash` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rol` TEXT NOT NULL, `planEndMillis` INTEGER, `sedeId` INTEGER, `sedeName` TEXT, `sedeLat` REAL, `sedeLng` REAL, PRIMARY KEY(`email`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passHash` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rol` TEXT NOT NULL, `planEndMillis` INTEGER, `sedeId` INTEGER, `sedeName` TEXT, `sedeLat` REAL, `sedeLng` REAL, `avatarUri` TEXT, PRIMARY KEY(`email`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `products` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `precio` REAL NOT NULL, `img` TEXT, `stock` INTEGER, `tipo` TEXT NOT NULL, `descripcion` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `cart_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `unitPrice` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `attendance` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userEmail` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `checkOutTimestamp` INTEGER)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `trainers` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fono` TEXT NOT NULL, `email` TEXT NOT NULL, `especialidad` TEXT NOT NULL, `img` TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `trainerId` INTEGER NOT NULL, `fechaHora` INTEGER NOT NULL, `estado` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userEmail` TEXT NOT NULL, `trainerId` INTEGER NOT NULL, `fechaHora` INTEGER NOT NULL, `estado` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5e31b2e119c64ecd57167094007d0279')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8bee743e7bea2221114fe176ab2f735')");
       }
 
       @Override
@@ -117,7 +117,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsUsers = new HashMap<String, TableInfo.Column>(9);
+        final HashMap<String, TableInfo.Column> _columnsUsers = new HashMap<String, TableInfo.Column>(10);
         _columnsUsers.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("passHash", new TableInfo.Column("passHash", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("nombre", new TableInfo.Column("nombre", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -127,6 +127,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         _columnsUsers.put("sedeName", new TableInfo.Column("sedeName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("sedeLat", new TableInfo.Column("sedeLat", "REAL", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUsers.put("sedeLng", new TableInfo.Column("sedeLng", "REAL", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUsers.put("avatarUri", new TableInfo.Column("avatarUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysUsers = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesUsers = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoUsers = new TableInfo("users", _columnsUsers, _foreignKeysUsers, _indicesUsers);
@@ -199,7 +200,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         }
         final HashMap<String, TableInfo.Column> _columnsBookings = new HashMap<String, TableInfo.Column>(5);
         _columnsBookings.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsBookings.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBookings.put("userEmail", new TableInfo.Column("userEmail", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("trainerId", new TableInfo.Column("trainerId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("fechaHora", new TableInfo.Column("fechaHora", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("estado", new TableInfo.Column("estado", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -214,7 +215,7 @@ public final class GymTasticDatabase_Impl extends GymTasticDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "5e31b2e119c64ecd57167094007d0279", "036c6b7e34abbe95c1e6f3854f6727bc");
+    }, "f8bee743e7bea2221114fe176ab2f735", "a511c273cb85f913464fc79e9df1a963");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

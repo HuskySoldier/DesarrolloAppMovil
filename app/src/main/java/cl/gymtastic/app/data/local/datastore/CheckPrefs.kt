@@ -8,6 +8,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+//El DataStore en tu app se encarga de guardar preferencias y
+// datos pequeños como la sesión activa y parte del perfil del usuario, de forma persistente en el dispositivo
 // Un DataStore dedicado
 private val Context.checkStore by preferencesDataStore(name = "check_prefs")
 

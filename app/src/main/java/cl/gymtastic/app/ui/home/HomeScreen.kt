@@ -56,6 +56,7 @@ fun HomeScreen(
     // --- Estado General y Contexto ---
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val cs = MaterialTheme.colorScheme
     val ctx = LocalContext.current
 
     // Ruta actual
@@ -66,17 +67,25 @@ fun HomeScreen(
     // --- Sesión de Autenticación y Datos del Usuario ---
     val session = remember { ServiceLocator.auth(ctx).prefs() }
     val authEmail by session.userEmailFlow.collectAsStateWithLifecycle(initialValue = "")
-    val isAdmin = authEmail.equals("admin@gymtastic.cl", ignoreCase = true)
+    // --- ELIMINADO isAdmin basado en email ---
+    // val isAdmin = authEmail.equals("admin@gymtastic.cl", ignoreCase = true)
 
     // --- Obtener DAOs ---
     val usersDao = remember { GymTasticDatabase.get(ctx).users() }
     val attendanceDao = remember { GymTasticDatabase.get(ctx).attendance() } // <-- DAO de Asistencia
 
-    // --- Observar UserEntity (para estado del plan) ---
+    // --- Observar UserEntity (para estado del plan y rol) ---
     val userEntity by remember(authEmail) {
         if (authEmail.isNotBlank()) usersDao.observeByEmail(authEmail) else flowOf(null)
     }.collectAsStateWithLifecycle(initialValue = null)
     val hasPlan = userEntity?.hasActivePlan ?: false
+
+    // --- MODIFICADO: isAdmin ahora depende del rol en UserEntity ---
+    val isAdmin by remember(userEntity) {
+        // Usa derivedStateOf para asegurar que solo se recalcule si userEntity cambia
+        derivedStateOf { userEntity?.rol == "admin" }
+    }
+    // --- FIN MODIFICACIÓN ---
 
     // --- Observar Lista de Asistencia desde Room ---
     val attendanceList by remember(authEmail) {
@@ -107,6 +116,8 @@ fun HomeScreen(
     }
 
 
+    val snackbar = remember { SnackbarHostState() }
+
     // --- Items del Drawer ---
     // Define baseItems and gatedItems if they are not already defined globally or passed as parameters
     val baseItems = listOf(
@@ -119,7 +130,8 @@ fun HomeScreen(
         "Check-In" to Screen.CheckIn.route,
         "Trainers" to Screen.Trainers.route
     )
-    val drawerItems = remember(hasPlan, currentRoute, isAdmin) {
+    // Recalcula items basado en hasPlan (derivado de userEntity) y ruta actual
+    val drawerItems = remember(hasPlan, currentRoute) { // isAdmin ya no es necesario aquí
         buildList {
             val base = if (hasPlan) baseItems + gatedItems else baseItems
             addAll(base.filter { (_, route) -> route != currentRoute }) // Use placeholder _ for unused label
@@ -150,7 +162,8 @@ fun HomeScreen(
                 nav = nav,
                 userEntity = userEntity,
                 windowSizeClass = windowSizeClass,
-                authEmail = authEmail,
+                // --- Pasamos isAdmin derivado ---
+                isAdmin = isAdmin,
                 checkCounts = calculatedCounts,
                 onOpenDrawer = { scope.launch { drawerState.open() } }
             )
@@ -171,7 +184,8 @@ fun HomeScreen(
                 nav = nav,
                 userEntity = userEntity,
                 windowSizeClass = windowSizeClass,
-                authEmail = authEmail,
+                // --- Pasamos isAdmin derivado ---
+                isAdmin = isAdmin,
                 checkCounts = calculatedCounts,
                 onOpenDrawer = null
             )
@@ -234,14 +248,15 @@ private fun DrawerContent(nav: NavController, drawerItems: List<Pair<String, Str
 }
 
 
-/** Scaffold principal */
+/** Scaffold principal (MODIFICADO para recibir isAdmin) */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenScaffold(
     nav: NavController,
     userEntity: UserEntity?,
     windowSizeClass: WindowSizeClass,
-    authEmail: String,
+    // --- Recibe isAdmin derivado ---
+    isAdmin: Boolean,
     checkCounts: CheckCounts,
     onOpenDrawer: (() -> Unit)?
 ) {
@@ -279,27 +294,31 @@ private fun HomeScreenScaffold(
             nav = nav,
             userEntity = userEntity,
             windowSizeClass = windowSizeClass,
-            authEmail = authEmail,
+            // --- Pasa isAdmin derivado ---
+            isAdmin = isAdmin,
             checkCounts = checkCounts
         )
     }
 }
 
 
-/** Contenido principal */
+/** Contenido principal (MODIFICADO para recibir isAdmin) */
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
     nav: NavController,
     userEntity: UserEntity?,
     windowSizeClass: WindowSizeClass,
-    authEmail: String,
+    // --- Recibe isAdmin derivado ---
+    isAdmin: Boolean,
     checkCounts: CheckCounts
 ) {
     val cs = MaterialTheme.colorScheme
     val hasPlan = userEntity?.hasActivePlan ?: false
     val planEnd = userEntity?.planEndMillis
-    val isAdmin = authEmail.equals("admin@gymtastic.cl", ignoreCase = true)
+
+    // --- ELIMINADO: Ya no calculamos isAdmin aquí, lo recibimos ---
+    // val isAdmin = authEmail.equals("admin@gymtastic.cl", ignoreCase = true)
 
     val widthSizeClass = windowSizeClass.widthSizeClass
     val isCompact = widthSizeClass == WindowWidthSizeClass.Compact
@@ -374,7 +393,7 @@ private fun HomeContent(
                 )
             }
 
-            // 4. Botón de Panel de Administración
+            // 4. Botón de Panel de Administración (Usa el isAdmin recibido)
             AnimatedVisibility(visible = isAdmin) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Spacer(Modifier.height(24.dp))
@@ -401,7 +420,7 @@ private fun HomeContent(
     }
 }
 
-// --- Componentes Internos ---
+// --- Componentes Internos (Sin cambios) ---
 @Composable private fun SectionTitle(title: String) {
     Text(
         text = title,

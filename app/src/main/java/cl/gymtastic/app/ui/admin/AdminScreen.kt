@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role // Required for Radio Button Row accessibility
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -68,25 +70,12 @@ fun AdminScreen(
 ) {
     val cs = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
-
-    // --- MODIFICADO: Añadida pestaña Usuarios ---
     val tabTitles = listOf("Productos", "Trainers", "Usuarios")
     val pagerState = rememberPagerState(pageCount = { tabTitles.size })
-
-    // Fondo
-    val bg = Brush.verticalGradient(
-        listOf(cs.primary.copy(alpha = 0.22f), cs.surface)
-    )
-
-    // Lógica de Ancho
+    val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
     val widthSizeClass = windowSizeClass.widthSizeClass
     val isCompact = widthSizeClass == WindowWidthSizeClass.Compact
-    val pagerModifier = if (isCompact) {
-        Modifier.fillMaxSize()
-    } else {
-        Modifier.fillMaxSize().padding(horizontal = 100.dp) // Centra el contenido en tablets
-    }
-
+    val pagerModifier = if (isCompact) Modifier.fillMaxSize() else Modifier.fillMaxSize().padding(horizontal = 100.dp)
 
     Scaffold(
         topBar = {
@@ -105,16 +94,8 @@ fun AdminScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(bg)
-                .padding(padding)
-        ) {
-            // --- Tabs ---
-            PrimaryTabRow(
-                selectedTabIndex = pagerState.currentPage,
-            ) {
+        Column(modifier = Modifier.fillMaxSize().background(bg).padding(padding)) {
+            PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
                         selected = pagerState.currentPage == index,
@@ -123,21 +104,15 @@ fun AdminScreen(
                     )
                 }
             }
-
-            // --- Pager ---
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.Top
             ) { page ->
-                Box(
-                    modifier = pagerModifier.padding(16.dp),
-                    contentAlignment = Alignment.TopCenter
-                ) {
+                Box(modifier = pagerModifier.padding(16.dp), contentAlignment = Alignment.TopCenter) {
                     when (page) {
                         0 -> AdminProductsTab()
                         1 -> AdminTrainersTab()
-                        // --- MODIFICADO: Añadido caso Usuarios ---
                         2 -> AdminUsersTab()
                     }
                 }
@@ -146,33 +121,25 @@ fun AdminScreen(
     }
 }
 
-// --- Pestaña de Productos (Sin Cambios recientes) ---
+// --- Pestaña de Productos ---
 @Composable
 fun AdminProductsTab() {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val repo = remember { ServiceLocator.products(ctx) }
-    val money = remember {
-        NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply { maximumFractionDigits = 0 }
-    }
-
-    // --- Estado ---
+    val money = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply { maximumFractionDigits = 0 } }
     val merch by repo.observeMerch().collectAsStateWithLifecycle(initialValue = emptyList())
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf<ProductEntity?>(null) }
     var editingProduct by remember { mutableStateOf<ProductEntity?>(null) }
 
-    // --- UI ---
     Scaffold(
         containerColor = Color.Transparent,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Nuevo Producto") },
                 icon = { Icon(Icons.Default.Add, null) },
-                onClick = {
-                    editingProduct = null // Nuevo producto
-                    showEditDialog = true
-                }
+                onClick = { editingProduct = null; showEditDialog = true }
             )
         }
     ) { padding ->
@@ -185,30 +152,21 @@ fun AdminProductsTab() {
                 ProductAdminCard(
                     product = product,
                     priceText = money.format(product.precio),
-                    onEdit = {
-                        editingProduct = product
-                        showEditDialog = true
-                    },
-                    onDelete = {
-                        showDeleteDialog = product
-                    }
+                    onEdit = { editingProduct = product; showEditDialog = true },
+                    onDelete = { showDeleteDialog = product }
                 )
             }
         }
     }
 
-    // --- Diálogo de Edición/Creación ---
     if (showEditDialog) {
         ProductEditDialog(
             product = editingProduct,
             onDismiss = { showEditDialog = false },
             onSave = { productToSave, oldImageUri ->
                 scope.launch {
-                    // Si la imagen cambió, borramos la antigua
                     if (oldImageUri != productToSave.img) {
-                        withContext(Dispatchers.IO) {
-                            ImageUriUtils.deleteFileFromInternalStorage(oldImageUri)
-                        }
+                        withContext(Dispatchers.IO) { ImageUriUtils.deleteFileFromInternalStorage(oldImageUri) }
                     }
                     repo.save(productToSave)
                     showEditDialog = false
@@ -217,17 +175,13 @@ fun AdminProductsTab() {
         )
     }
 
-    // --- Diálogo de Eliminación ---
     showDeleteDialog?.let { productToDelete ->
         DeleteConfirmDialog(
             itemName = productToDelete.nombre,
             onDismiss = { showDeleteDialog = null },
             onConfirm = {
                 scope.launch {
-                    // Borramos el producto Y la imagen asociada
-                    withContext(Dispatchers.IO) {
-                        ImageUriUtils.deleteFileFromInternalStorage(productToDelete.img)
-                    }
+                    withContext(Dispatchers.IO) { ImageUriUtils.deleteFileFromInternalStorage(productToDelete.img) }
                     repo.delete(productToDelete)
                     showDeleteDialog = null
                 }
@@ -237,106 +191,54 @@ fun AdminProductsTab() {
 }
 
 @Composable
-fun ProductAdminCard(
-    product: ProductEntity,
-    priceText: String,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
+fun ProductAdminCard(product: ProductEntity, priceText: String, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // --- Miniatura de la imagen ---
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             SubcomposeAsyncImage(
-                model = product.img, // Carga la URL/URI
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                model = product.img, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                 loading = { CircularProgressIndicator(Modifier.size(24.dp))},
-                error = {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Category, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                },
+                error = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Icon(Icons.Default.Category, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) } },
                 success = { SubcomposeAsyncImageContent() }
             )
-
             Spacer(Modifier.width(12.dp))
-
             Column(Modifier.weight(1f)) {
                 Text(product.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    "Stock: ${product.stock ?: "N/A"}  •  Precio: $priceText",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Stock: ${product.stock ?: "N/A"}  •  Precio: $priceText", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, "Editar", tint = MaterialTheme.colorScheme.primary)
-            }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.error)
-            }
+            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, "Editar", tint = MaterialTheme.colorScheme.primary) }
+            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.error) }
         }
     }
 }
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun ProductEditDialog(
-    product: ProductEntity?,
-    onDismiss: () -> Unit,
-    // Devuelve el producto Y la URI de la imagen antigua (para borrarla si cambia)
-    onSave: (ProductEntity, String?) -> Unit
-) {
+fun ProductEditDialog(product: ProductEntity?, onDismiss: () -> Unit, onSave: (ProductEntity, String?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val oldImageUri = product?.img // Guardamos la URI antigua
-
+    val oldImageUri = product?.img
     var name by remember { mutableStateOf(product?.nombre ?: "") }
-    var price by remember { mutableStateOf(product?.precio?.toInt()?.toString() ?: "") } // Int para precio
+    var price by remember { mutableStateOf(product?.precio?.toInt()?.toString() ?: "") }
     var stock by remember { mutableStateOf(product?.stock?.toString() ?: "") }
     var desc by remember { mutableStateOf(product?.descripcion ?: "") }
     var imgUriString by remember { mutableStateOf(product?.img ?: "") }
-
-    val isFormValid by derivedStateOf {
-        name.isNotBlank() && price.toIntOrNull() != null && stock.toIntOrNull() != null
-    }
-
-    // --- Launcher para el selector de imágenes ---
-    val pickMedia = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
+    val isFormValid by derivedStateOf { name.isNotBlank() && price.toIntOrNull() != null && stock.toIntOrNull() != null }
+    val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            // Copiamos la imagen al almacenamiento interno en un hilo IO
             scope.launch(Dispatchers.IO) {
-                val internalUri = ImageUriUtils.copyUriToInternalStorage(
-                    context = ctx,
-                    uri = uri,
-                    fileNamePrefix = "prod_${product?.id ?: "new"}"
-                )
+                val internalUri = ImageUriUtils.copyUriToInternalStorage(ctx, uri, "prod_${product?.id ?: "new"}")
                 withContext(Dispatchers.Main) {
                     if (internalUri != null) {
-                        // Borramos la imagen anterior SI es diferente y existe
                         if (oldImageUri != null && oldImageUri != internalUri) {
-                            withContext(Dispatchers.IO){
-                                ImageUriUtils.deleteFileFromInternalStorage(oldImageUri)
-                            }
+                            withContext(Dispatchers.IO){ ImageUriUtils.deleteFileFromInternalStorage(oldImageUri) }
                         }
                         imgUriString = internalUri
-                    } else {
-                        Toast.makeText(ctx, "Error al copiar la imagen", Toast.LENGTH_SHORT).show()
-                    }
+                    } else { Toast.makeText(ctx, "Error al copiar la imagen", Toast.LENGTH_SHORT).show() }
                 }
             }
         }
@@ -346,157 +248,57 @@ fun ProductEditDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (product == null) "Nuevo Producto" else "Editar Producto") },
         text = {
-            // Envolvemos en un Scroll por si no cabe
             Column(Modifier.verticalScroll(rememberScrollState())) {
-
-                // --- Selector de Imagen ---
                 Spacer(Modifier.height(8.dp))
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                            RoundedCornerShape(12.dp)
-                        )
-                        .clickable {
-                            pickMedia.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    SubcomposeAsyncImage(
-                        model = ImageRequest.Builder(ctx)
-                            .data(imgUriString.ifBlank { null }) // Carga la URI (String)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Imagen del producto",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
+                Box(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(12.dp)).clickable { pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                    contentAlignment = Alignment.Center) {
+                    SubcomposeAsyncImage(model = ImageRequest.Builder(ctx).data(imgUriString.ifBlank { null }).crossfade(true).build(),
+                        contentDescription = "Imagen del producto", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
                         loading = { CircularProgressIndicator(Modifier.size(32.dp)) },
-                        error = {
-                            // Placeholder si no hay imagen
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Icon(Icons.Default.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("Seleccionar Imagen", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        },
-                        success = { SubcomposeAsyncImageContent() }
-                    )
-
-                    // Botón para quitar la imagen
+                        error = { Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
+                            Icon(Icons.Default.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Text("Seleccionar Imagen", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+                        success = { SubcomposeAsyncImageContent() })
                     if (imgUriString.isNotBlank()) {
-                        IconButton(
-                            onClick = {
-                                // Borra la imagen del storage ANTES de limpiar la URI del estado
-                                scope.launch(Dispatchers.IO){
-                                    ImageUriUtils.deleteFileFromInternalStorage(imgUriString)
-                                }
-                                imgUriString = ""
-                            },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(4.dp)
-                                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f), CircleShape)
-                        ) {
-                            Icon(Icons.Default.Clear, "Quitar imagen", tint = Color.White)
-                        }
+                        IconButton(onClick = { scope.launch(Dispatchers.IO){ ImageUriUtils.deleteFileFromInternalStorage(imgUriString) }; imgUriString = "" },
+                            modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f), CircleShape)) {
+                            Icon(Icons.Default.Clear, "Quitar imagen", tint = Color.White) }
                     }
                 }
-                // --- Fin Selector de Imagen ---
-
                 Spacer(Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = price,
-                        onValueChange = { price = it },
-                        label = { Text("Precio (CLP)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = stock,
-                        onValueChange = { stock = it },
-                        label = { Text("Stock") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
+                    OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Precio (CLP)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                    OutlinedTextField(value = stock, onValueChange = { stock = it }, label = { Text("Stock") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = desc,
-                    onValueChange = { desc = it },
-                    label = { Text("Descripción (opcional)") },
-                    minLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = desc, onValueChange = { desc = it }, label = { Text("Descripción (opcional)") }, minLines = 3, modifier = Modifier.fillMaxWidth())
             }
         },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val entity = ProductEntity(
-                        id = product?.id ?: 0, // 0 para autogenerar
-                        nombre = name.trim(),
-                        descripcion = desc.trim(),
-                        precio = price.toDoubleOrNull() ?: 0.0, // Precio como Double
-                        stock = stock.toIntOrNull(), // Stock como Int?
-                        tipo = "merch", // Asume "merch" por defecto
-                        img = imgUriString.trim().ifBlank { null } // Guarda la URI (String)
-                    )
-                    onSave(entity, oldImageUri)
-                },
-                enabled = isFormValid
-            ) { Text("Guardar") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
+        confirmButton = { Button(onClick = { onSave(ProductEntity(id = product?.id ?: 0, nombre = name.trim(), descripcion = desc.trim(), precio = price.toDoubleOrNull() ?: 0.0, stock = stock.toIntOrNull(), tipo = "merch", img = imgUriString.trim().ifBlank { null }), oldImageUri) }, enabled = isFormValid) { Text("Guardar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )
 }
 
-
-// --- Pestaña de Trainers (Sin Cambios recientes) ---
-
+// --- Pestaña de Trainers ---
 @Composable
 fun AdminTrainersTab() {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val repo = remember { ServiceLocator.trainers(ctx) }
-
-    // --- Estado ---
     val trainers by repo.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf<TrainerEntity?>(null) }
     var editingTrainer by remember { mutableStateOf<TrainerEntity?>(null) }
 
-    // --- UI ---
     Scaffold(
         containerColor = Color.Transparent,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Nuevo Trainer") },
                 icon = { Icon(Icons.Default.Add, null) },
-                onClick = {
-                    editingTrainer = null // Nuevo trainer
-                    showEditDialog = true
-                }
+                onClick = { editingTrainer = null; showEditDialog = true }
             )
         }
     ) { padding ->
@@ -506,32 +308,23 @@ fun AdminTrainersTab() {
             contentPadding = PaddingValues(bottom = 96.dp)
         ) {
             items(trainers, key = { it.id }) { trainer ->
-                TrainerAdminCard( // <-- Tarjeta actualizada
+                TrainerAdminCard(
                     trainer = trainer,
-                    onEdit = {
-                        editingTrainer = trainer
-                        showEditDialog = true
-                    },
-                    onDelete = {
-                        showDeleteDialog = trainer
-                    }
+                    onEdit = { editingTrainer = trainer; showEditDialog = true },
+                    onDelete = { showDeleteDialog = trainer }
                 )
             }
         }
     }
 
-    // --- Diálogo de Edición/Creación ---
     if (showEditDialog) {
-        TrainerEditDialog( // <-- Diálogo actualizado
+        TrainerEditDialog(
             trainer = editingTrainer,
             onDismiss = { showEditDialog = false },
-            onSave = { trainerToSave, oldImageUri -> // <-- Firma actualizada
+            onSave = { trainerToSave, oldImageUri ->
                 scope.launch {
-                    // Borra la imagen antigua si cambió
                     if (oldImageUri != trainerToSave.img) {
-                        withContext(Dispatchers.IO) {
-                            ImageUriUtils.deleteFileFromInternalStorage(oldImageUri)
-                        }
+                        withContext(Dispatchers.IO) { ImageUriUtils.deleteFileFromInternalStorage(oldImageUri) }
                     }
                     repo.save(trainerToSave)
                     showEditDialog = false
@@ -540,17 +333,13 @@ fun AdminTrainersTab() {
         )
     }
 
-    // --- Diálogo de Eliminación ---
     showDeleteDialog?.let { trainerToDelete ->
         DeleteConfirmDialog(
             itemName = trainerToDelete.nombre,
             onDismiss = { showDeleteDialog = null },
             onConfirm = {
                 scope.launch {
-                    // Borra también la imagen
-                    withContext(Dispatchers.IO) {
-                        ImageUriUtils.deleteFileFromInternalStorage(trainerToDelete.img)
-                    }
+                    withContext(Dispatchers.IO) { ImageUriUtils.deleteFileFromInternalStorage(trainerToDelete.img) }
                     repo.delete(trainerToDelete)
                     showDeleteDialog = null
                 }
@@ -560,104 +349,52 @@ fun AdminTrainersTab() {
 }
 
 @Composable
-fun TrainerAdminCard( // <-- Tarjeta actualizada
-    trainer: TrainerEntity,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
+fun TrainerAdminCard(trainer: TrainerEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // --- Miniatura de la imagen ---
-            SubcomposeAsyncImage(
-                model = trainer.img,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape) // Círculo para trainers
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            SubcomposeAsyncImage(model = trainer.img, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.size(56.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant),
                 loading = { CircularProgressIndicator(Modifier.size(24.dp)) },
-                error = {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                },
-                success = { SubcomposeAsyncImageContent() }
-            )
-
+                error = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) } },
+                success = { SubcomposeAsyncImageContent() })
             Spacer(Modifier.width(12.dp))
-
             Column(Modifier.weight(1f)) {
                 Text(trainer.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    trainer.especialidad,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Text(trainer.especialidad, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, "Editar", tint = MaterialTheme.colorScheme.primary)
-            }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.error)
-            }
+            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, "Editar", tint = MaterialTheme.colorScheme.primary) }
+            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.error) }
         }
     }
 }
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun TrainerEditDialog( // <-- Diálogo actualizado
-    trainer: TrainerEntity?,
-    onDismiss: () -> Unit,
-    onSave: (TrainerEntity, String?) -> Unit // <-- Firma actualizada
-) {
+fun TrainerEditDialog(trainer: TrainerEntity?, onDismiss: () -> Unit, onSave: (TrainerEntity, String?) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    val oldImageUri = trainer?.img // Guardamos la URI antigua
-
+    val oldImageUri = trainer?.img
     var name by remember { mutableStateOf(trainer?.nombre ?: "") }
     var especialidad by remember { mutableStateOf(trainer?.especialidad ?: "") }
     var fono by remember { mutableStateOf(trainer?.fono ?: "") }
     var email by remember { mutableStateOf(trainer?.email ?: "") }
-    var imgUriString by remember { mutableStateOf(trainer?.img ?: "") } // <-- Estado de imagen añadido
-
-    val isFormValid by derivedStateOf {
-        name.isNotBlank() && especialidad.isNotBlank() && email.contains("@") && fono.isNotBlank() // Valida email
-    }
-
-    // --- Launcher para el selector de imágenes ---
-    val pickMedia = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
+    var imgUriString by remember { mutableStateOf(trainer?.img ?: "") }
+    val isFormValid by derivedStateOf { name.isNotBlank() && especialidad.isNotBlank() && email.contains("@") && fono.isNotBlank() }
+    val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             scope.launch(Dispatchers.IO) {
-                val internalUri = ImageUriUtils.copyUriToInternalStorage(
-                    context = ctx,
-                    uri = uri,
-                    fileNamePrefix = "trainer_${trainer?.id ?: "new"}"
-                )
+                val internalUri = ImageUriUtils.copyUriToInternalStorage(ctx, uri, "trainer_${trainer?.id ?: "new"}")
                 withContext(Dispatchers.Main) {
                     if (internalUri != null) {
-                        // Borra la imagen anterior si es diferente
                         if (oldImageUri != null && oldImageUri != internalUri) {
-                            withContext(Dispatchers.IO){
-                                ImageUriUtils.deleteFileFromInternalStorage(oldImageUri)
-                            }
+                            withContext(Dispatchers.IO){ ImageUriUtils.deleteFileFromInternalStorage(oldImageUri) }
                         }
                         imgUriString = internalUri
-                    } else {
-                        Toast.makeText(ctx, "Error al copiar la imagen", Toast.LENGTH_SHORT).show()
-                    }
+                    } else { Toast.makeText(ctx, "Error al copiar la imagen", Toast.LENGTH_SHORT).show() }
                 }
             }
         }
@@ -668,126 +405,36 @@ fun TrainerEditDialog( // <-- Diálogo actualizado
         title = { Text(if (trainer == null) "Nuevo Trainer" else "Editar Trainer") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-
-                // --- Selector de Imagen (Circular) ---
                 Spacer(Modifier.height(8.dp))
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(150.dp), // Lo mantenemos cuadrado
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        Modifier
-                            .size(150.dp) // Tamaño del círculo
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                                CircleShape
-                            )
-                            .clickable {
-                                pickMedia.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SubcomposeAsyncImage(
-                            model = ImageRequest.Builder(ctx)
-                                .data(imgUriString.ifBlank { null })
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Foto del Trainer",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
+                Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(150.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), CircleShape).clickable { pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                        contentAlignment = Alignment.Center) {
+                        SubcomposeAsyncImage(model = ImageRequest.Builder(ctx).data(imgUriString.ifBlank { null }).crossfade(true).build(),
+                            contentDescription = "Foto del Trainer", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
                             loading = { CircularProgressIndicator(Modifier.size(32.dp))},
-                            error = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text("Seleccionar Foto", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            },
-                            success = { SubcomposeAsyncImageContent() }
-                        )
+                            error = { Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.PhotoCamera, null, tint = MaterialTheme.colorScheme.onSurfaceVariant); Text("Seleccionar Foto", color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+                            success = { SubcomposeAsyncImageContent() })
                     }
-                    // Botón para quitar la imagen
                     if (imgUriString.isNotBlank()) {
-                        IconButton(
-                            onClick = {
-                                // Borra la imagen antes de limpiar
-                                scope.launch(Dispatchers.IO){
-                                    ImageUriUtils.deleteFileFromInternalStorage(imgUriString)
-                                }
-                                imgUriString = ""
-                            },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd) // Posición diferente
-                                .padding(4.dp)
-                                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f), CircleShape)
-                        ) {
-                            Icon(Icons.Default.Clear, "Quitar imagen", tint = Color.White)
-                        }
+                        IconButton(onClick = { scope.launch(Dispatchers.IO){ ImageUriUtils.deleteFileFromInternalStorage(imgUriString) }; imgUriString = "" },
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp).background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f), CircleShape)) {
+                            Icon(Icons.Default.Clear, "Quitar imagen", tint = Color.White) }
                     }
                 }
-                // --- Fin Selector de Imagen ---
-
                 Spacer(Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre Completo") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre Completo") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = especialidad,
-                    onValueChange = { especialidad = it },
-                    label = { Text("Especialidad") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = especialidad, onValueChange = { especialidad = it }, label = { Text("Especialidad") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = fono,
-                    onValueChange = { fono = it },
-                    label = { Text("Fono (ej: +569...)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = fono, onValueChange = { fono = it }, label = { Text("Fono (ej: +569...)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), singleLine = true, modifier = Modifier.fillMaxWidth())
             }
         },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val entity = TrainerEntity(
-                        id = trainer?.id ?: 0, // 0 para autogenerar
-                        nombre = name.trim(),
-                        especialidad = especialidad.trim(),
-                        fono = fono.trim(),
-                        email = email.trim(),
-                        img = imgUriString.trim().ifBlank { null } // <-- Guardar imagen
-                    )
-                    onSave(entity, oldImageUri) // <-- Devolver URI antigua
-                },
-                enabled = isFormValid
-            ) { Text("Guardar") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
+        confirmButton = { Button(onClick = { onSave(TrainerEntity(id = trainer?.id ?: 0, nombre = name.trim(), especialidad = especialidad.trim(), fono = fono.trim(), email = email.trim(), img = imgUriString.trim().ifBlank { null }), oldImageUri) }, enabled = isFormValid) { Text("Guardar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )
 }
 
@@ -848,17 +495,29 @@ fun AdminUsersTab() {
     if (showAddDialog) {
         UserAddDialog(
             onDismiss = { showAddDialog = false },
-            onAdd = { email, name, password, rol ->
+            onAdd = { email, name, password, rol -> // <-- Recibe el rol
                 scope.launch {
+                    val normalizedEmail = email.trim().lowercase()
+                    val normalizedName = name.trim()
                     // Usamos AuthRepository para registrar (maneja hashing y chequeo de existencia)
-                    val success = authRepo.register(email, password, name) // Asume rol 'user' por defecto
-                    if (success) {
-                        // Opcional: Si quieres cambiar el rol después de registrar
-                        // usersDao.updateRole(email, rol)
-                        Toast.makeText(ctx, "Usuario $email creado", Toast.LENGTH_SHORT).show()
+                    val registerSuccess = authRepo.register(normalizedEmail, password, normalizedName) // Rol por defecto 'user'
+                    if (registerSuccess) {
+                        // Si el rol elegido es diferente al por defecto ('user'), actualizamos
+                        if (rol != "user") {
+                            // --- añadi updateUserRole a UsersDao ---
+                            val updatedRows = usersDao.updateUserRole(normalizedEmail, rol)
+                            if (updatedRows > 0) {
+                                Toast.makeText(ctx, "Usuario $normalizedEmail creado con rol $rol", Toast.LENGTH_SHORT).show()
+                            } else {
+                                // Esto podría pasar si el registro fue exitoso pero la actualización falló (raro)
+                                Toast.makeText(ctx, "Usuario $normalizedEmail creado (rol por defecto), error al asignar rol $rol", Toast.LENGTH_LONG).show()
+                            }
+                        } else {
+                            Toast.makeText(ctx, "Usuario $normalizedEmail creado", Toast.LENGTH_SHORT).show()
+                        }
                         showAddDialog = false
                     } else {
-                        Toast.makeText(ctx, "El email $email ya existe", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, "El email $normalizedEmail ya existe", Toast.LENGTH_SHORT).show()
                         // Mantenemos el diálogo abierto
                     }
                 }
@@ -888,9 +547,8 @@ fun AdminUsersTab() {
 
     // --- Diálogo Eliminar Usuario ---
     showDeleteDialog?.let { userToDelete ->
-        // Usamos el mismo diálogo genérico de confirmación
         DeleteConfirmDialog(
-            itemName = userToDelete.email, // Identificamos por email
+            itemName = userToDelete.email,
             onDismiss = { showDeleteDialog = null },
             onConfirm = {
                 scope.launch {
@@ -924,38 +582,31 @@ fun UserAdminCard(
         ) {
             Column(Modifier.weight(1f)) {
                 Text(user.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    user.email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                // Opcional: Mostrar rol si lo necesitas
-                // Text("Rol: ${user.rol}", style = MaterialTheme.typography.bodySmall)
+                Text(user.email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Mostrar el rol para que el admin lo vea
+                Text("Rol: ${user.rol}", style = MaterialTheme.typography.bodySmall)
             }
-            // Botón para resetear contraseña
-            IconButton(onClick = onResetPassword) {
-                Icon(Icons.Default.LockReset, "Resetear Contraseña", tint = MaterialTheme.colorScheme.secondary)
-            }
-            // Botón eliminar
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Eliminar Usuario", tint = MaterialTheme.colorScheme.error)
-            }
+            IconButton(onClick = onResetPassword) { Icon(Icons.Default.LockReset, "Resetear Contraseña", tint = MaterialTheme.colorScheme.secondary) }
+            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, "Eliminar Usuario", tint = MaterialTheme.colorScheme.error) }
         }
     }
 }
 
+// --- Diálogo Añadir Usuario (MODIFICADO) ---
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun UserAddDialog(
     onDismiss: () -> Unit,
-    onAdd: (email: String, name: String, password: String, rol: String) -> Unit
+    onAdd: (email: String, name: String, password: String, rol: String) -> Unit // <-- Añadido rol
 ) {
     var email by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    // Por ahora, rol fijo 'user', podrías añadir un Dropdown si necesitas 'admin'
-    val rol = "user"
+    // --- NUEVO: Estado para seleccionar rol ---
+    val roles = listOf("user", "admin") // Opciones de roles
+    var selectedRol by remember { mutableStateOf(roles[0]) } // Por defecto 'user'
+    // --- FIN NUEVO ---
 
     val isFormValid by derivedStateOf {
         email.contains("@") && name.isNotBlank() && password.length >= 6
@@ -966,41 +617,51 @@ fun UserAddDialog(
         title = { Text("Nuevo Usuario") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next), singleLine = true)
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next), singleLine = true)
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Contraseña Inicial") },
+                    value = password, onValueChange = { password = it }, label = { Text("Contraseña Inicial") },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { if(isFormValid) onAdd(email, name, password, rol) }),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, null)
-                        }
-                    },
-                    singleLine = true,
-                    supportingText = { Text("Mínimo 6 caracteres") }
+                    keyboardActions = KeyboardActions(onDone = { if(isFormValid) onAdd(email, name, password, selectedRol) }), // <-- Pasa selectedRol
+                    trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, null) } },
+                    singleLine = true, supportingText = { Text("Mínimo 6 caracteres") }
                 )
-                // Opcional: Dropdown para seleccionar rol si es necesario
+
+                // --- NUEVO: Selección de Rol con Radio Buttons ---
+                Spacer(Modifier.height(8.dp))
+                Text("Rol:", style = MaterialTheme.typography.labelMedium)
+                Row(Modifier.fillMaxWidth()) {
+                    roles.forEach { rolOption ->
+                        Row(
+                            Modifier
+                                .weight(1f) // Ocupa espacio equitativo
+                                .selectable(
+                                    selected = (rolOption == selectedRol),
+                                    onClick = { selectedRol = rolOption },
+                                    role = Role.RadioButton
+                                )
+                                .padding(horizontal = 4.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (rolOption == selectedRol),
+                                onClick = null // onClick ya está en Row
+                            )
+                            Text(
+                                text = rolOption.replaceFirstChar { it.titlecase(Locale.getDefault()) }, // Capitalizar ("User", "Admin")
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                }
+                // --- FIN NUEVO ---
             }
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(email.trim().lowercase(), name.trim(), password, rol) }, // Normaliza email y nombre
+                onClick = { onAdd(email.trim().lowercase(), name.trim(), password, selectedRol) }, // <-- Pasa selectedRol
                 enabled = isFormValid
             ) { Text("Crear") }
         },
@@ -1010,16 +671,13 @@ fun UserAddDialog(
     )
 }
 
+// --- Diálogo Resetear Contraseña (Sin cambios) ---
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun UserResetPasswordDialog(
-    user: UserEntity,
-    onDismiss: () -> Unit,
-    onConfirm: (newPassword: String) -> Unit
-) {
+fun UserResetPasswordDialog(user: UserEntity, onDismiss: () -> Unit, onConfirm: (newPassword: String) -> Unit) {
+    /* ... Código sin cambios ... */
     var newPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-
     val isValid by derivedStateOf { newPassword.length >= 6 }
 
     AlertDialog(
@@ -1057,15 +715,10 @@ fun UserResetPasswordDialog(
     )
 }
 
-
 // --- Diálogo Genérico de Confirmación (Sin cambios) ---
-
 @Composable
-fun DeleteConfirmDialog(
-    itemName: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
+fun DeleteConfirmDialog(itemName: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    /* ... Código sin cambios ... */
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Confirmar Eliminación") },
@@ -1085,3 +738,5 @@ fun DeleteConfirmDialog(
         }
     )
 }
+
+

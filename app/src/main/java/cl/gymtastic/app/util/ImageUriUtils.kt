@@ -11,10 +11,10 @@ import java.util.Locale
 
 object ImageUriUtils {
 
-    /**
-     * Crea una URI temporal en el caché para guardar una foto de la cámara.
-     * (Esta es la función que ya tenías)
-     */
+
+    //* Crea una URI temporal en el caché para guardar una foto de la cámara.
+    //* (Esta es la función que ya tenías)
+
     fun createTempImageUri(context: Context): Uri {
         val time = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis())
         val imagesDir = File(context.cacheDir, "images").apply { mkdirs() }
@@ -22,12 +22,12 @@ object ImageUriUtils {
         return FileProvider.getUriForFile(context, "cl.gymtastic.app.fileprovider", image)
     }
 
-    /**
-     * (NUEVA FUNCIÓN - Requerida por AdminScreen)
-     * Copia el contenido de una URI (ej. de la galería) al almacenamiento interno
-     * de la app, dándole un permiso permanente.
-     * Devuelve la URI (como String) del archivo copiado.
-     */
+    //**
+    //* (NUEVA FUNCIÓN - Requerida por AdminScreen)
+    //* Copia el contenido de una URI (ej. de la galería) al almacenamiento interno
+    //* de la app, dándole un permiso permanente.
+    //* Devuelve la URI (como String) del archivo copiado.
+
     fun copyUriToInternalStorage(
         context: Context,
         uri: Uri,
@@ -58,11 +58,11 @@ object ImageUriUtils {
         }
     }
 
-    /**
-     * (NUEVA FUNCIÓN - Requerida por AdminScreen)
-     * Elimina un archivo del almacenamiento interno usando su URI (String)
-     * Importante para limpiar imágenes cuando se borra o cambia un producto.
-     */
+
+    // (NUEVA FUNCIÓN - Requerida por AdminScreen)
+    //* Elimina un archivo del almacenamiento interno usando su URI (String)
+    //* Importante para limpiar imágenes cuando se borra o cambia un producto.
+
     fun deleteFileFromInternalStorage(uriString: String?): Boolean {
         if (uriString.isNullOrBlank()) return false
         return try {

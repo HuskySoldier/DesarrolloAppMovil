@@ -11,9 +11,6 @@ public final class GymTasticApp extends android.app.Application {
     public void onCreate() {
     }
     
-    /**
-     * Configura y programa el Worker periódico para el recordatorio diario.
-     */
     private final void setupDailyReminderWorker() {
     }
 }

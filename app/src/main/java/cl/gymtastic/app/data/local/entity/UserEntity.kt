@@ -11,21 +11,21 @@ data class UserEntity(
     val nombre: String,
     val rol: String,
 
-    // --- CAMPOS DE SUSCRIPCIÓN MOVIDOS AQUÍ ---
-    // Ya no usamos 'isSubscribed', usamos 'planEndMillis' para saber si está activo
+    // --- Campos de Suscripción ---
     val planEndMillis: Long? = null,
     val sedeId: Int? = null,
     val sedeName: String? = null,
-    val sedeLat: Double? = null, // Room soporta Double (lo guarda como REAL)
-    val sedeLng: Double? = null
+    val sedeLat: Double? = null,
+    val sedeLng: Double? = null,
+
+     //* URI (como String) de la imagen de perfil del usuario,
+     //* almacenada internamente en la app.
+     //Null si usa la imagen por defecto.
+    val avatarUri: String? = null // <-- AÑADIDO
 
 ) : Serializable { // Serializable si necesitas pasarlo entre fragments/actividades
 
-    /**
-     * Lógica de negocio (antes en MembershipState).
-     * El plan está activo si la fecha de fin es futura.
-     * NO necesita @Ignore, Room lo ignora automáticamente.
-     */
+    ///** Lógica de negocio para el plan activo */
     val hasActivePlan: Boolean
         get() {
             val end = planEndMillis ?: return false

@@ -45,62 +45,85 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import cl.gymtastic.app.data.repository.AuthRepository
 import cl.gymtastic.app.ui.navigation.NavRoutes
 import cl.gymtastic.app.util.ServiceLocator
 import kotlinx.coroutines.launch
 
-// -----------------------------
-// ViewModel (igual al tuyo + limpio)
-// -----------------------------
-class LoginViewModel(
-    private val repoProvider: (android.content.Context) -> cl.gymtastic.app.data.repository.AuthRepository
-) : ViewModel() {
-    var loading by mutableStateOf(false)
-    var error by mutableStateOf<String?>(null)
 
+class LoginViewModel(
+
+    // Acepta una función que provea el AuthRepository
+    private val repoProvider: (context: android.content.Context) -> AuthRepository
+) : ViewModel() {
+    // Estado de carga (true mientras se verifica el login)
+    var loading by mutableStateOf(false)
+        private set // Solo modificable desde el ViewModel
+
+    // Estado de error (String con mensaje si falla, null si no hay error)
+    var error by mutableStateOf<String?>(null)
+        private set // Solo modificable desde el ViewModel
+
+
+
+    // Función llamada desde la UI para intentar iniciar sesión
     fun login(context: android.content.Context, emailRaw: String, passRaw: String, onSuccess: () -> Unit) {
+        // Lanzar coroutine para operaciones asíncronas (llamada al repo)
         viewModelScope.launch {
-            loading = true
-            error = null
-            // Normaliza inputs (debe calzar con AuthRepository)
+            loading = true // Inicia estado de carga
+            error = null   // Limpia errores previos
+            // Normaliza email y contraseña (quitar espacios, minúsculas para email)
             val email = emailRaw.trim().lowercase()
             val pass = passRaw.trim()
-            val ok = repoProvider(context).login(email, pass)
-            loading = false
-            if (ok) onSuccess() else error = "Credenciales inválidas"
+            // Llama al AuthRepository (obtenido via repoProvider) para verificar credenciales
+            val loginSuccessful = repoProvider(context).login(email, pass)
+            loading = false // Finaliza estado de carga
+            if (loginSuccessful) {
+                onSuccess() // Llama a la lambda si el login fue exitoso (para navegar)
+            } else {
+                error = "Credenciales inválidas" // Establece mensaje de error si falló
+            }
         }
+    }
+    fun clearError() {
+        error = null
     }
 }
 
 // -----------------------------
 // Pantalla de Login
 // -----------------------------
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState") // Justificado si el estado se maneja con ViewModel/rememberSaveable
 @Composable
 fun LoginScreen(
     nav: NavController,
-    windowSizeClass: WindowSizeClass // <-- PARÁMETRO AÑADIDO
+    windowSizeClass: WindowSizeClass // Recibe WindowSizeClass para diseño adaptativo
 ) {
-    val ctx = LocalContext.current
-    val vm = remember { LoginViewModel { ServiceLocator.auth(it) } }
+    // --- Preparativos ---
+    val ctx = LocalContext.current // Contexto actual
+    // Crea y recuerda la instancia del ViewModel
+    val vm: LoginViewModel = remember { LoginViewModel { ServiceLocator.auth(it) } }
 
-    // --- Estado de UI / inputs
-    var email by rememberSaveable { mutableStateOf("admin@gymtastic.cl") }
-    var pass by rememberSaveable { mutableStateOf("admin123") }
-    var passVisible by rememberSaveable { mutableStateOf(false) }
+    // --- Estado de UI / Campos del Formulario ---
+    // Usamos rememberSaveable para que el texto sobreviva a cambios de configuración (rotación)
+    var email by rememberSaveable { mutableStateOf("admin@gymtastic.cl") } // Valor inicial para pruebas
+    var pass by rememberSaveable { mutableStateOf("admin123") } // Valor inicial para pruebas
+    var passVisible by rememberSaveable { mutableStateOf(false) } // Estado para mostrar/ocultar contraseña
 
-    val keyboard = LocalSoftwareKeyboardController.current
+    val keyboard = LocalSoftwareKeyboardController.current // Controlador para ocultar teclado
 
-    // --- Animación de entrada de la Card
+    // --- Animaciones ---
+    // Estado para la animación de entrada de la tarjeta
     var show by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { show = true }
+    LaunchedEffect(Unit) { show = true } // Inicia la animación al entrar a la pantalla
 
-    // --- Animación de “shake” cuando hay error
+    // Estado animable para el efecto "shake" de la tarjeta en caso de error
     val shakeOffset = remember { Animatable(0f) }
-    LaunchedEffect(vm.error) {
-        if (vm.error != null) {
-            shakeOffset.snapTo(0f)
-            shakeOffset.animateTo(
+    LaunchedEffect(vm.error) { // Se ejecuta cada vez que vm.error cambia
+        if (vm.error != null) { // Si hay un error...
+            shakeOffset.snapTo(0f) // Resetea la posición
+            // Anima el desplazamiento horizontal (efecto shake)
+            shakeOffset.animateTo( /* ... keyframes ... */
                 targetValue = 0f,
                 animationSpec = keyframes {
                     durationMillis = 500
@@ -118,243 +141,141 @@ fun LoginScreen(
         }
     }
 
-    // --- Tema / colores base
-    val cs = MaterialTheme.colorScheme
-
-    // --- Reacciona al tamaño de pantalla
-    val widthSizeClass = windowSizeClass.widthSizeClass
-
-    // --- Fondo con gradiente vertical (super simple de cambiar)
-    val bg = Brush.verticalGradient(
-        listOf(cs.primary.copy(alpha = 0.22f), cs.surface)
-    )
-
-
-
-    // --- Scroll por si el teclado tapa inputs en pantallas pequeñas
+    // --- Estilo y Layout ---
+    val cs = MaterialTheme.colorScheme // Colores del tema
+    // Define el fondo con gradiente
+    val bg = Brush.verticalGradient(listOf(cs.primary.copy(alpha = 0.22f), cs.surface))
+    // Estado para scroll interno de la tarjeta
     val scroll = rememberScrollState()
 
-    // --- Validaciones simples (fáciles de ajustar)
-    val isEmailValid by derivedStateOf {
-        // Valida formato básico de email
-        email.contains("@") && email.contains(".") && email.length >= 6
-    }
+    // --- Validaciones (Estados Derivados) ---
+    // Se recalculan automáticamente si 'email' o 'pass' cambian
+    val isEmailValid by derivedStateOf { email.contains("@") && email.contains(".") && email.length >= 6 }
     val isPassValid by derivedStateOf { pass.length >= 6 }
 
-    // --- Acción unificada para “Ingresar”
+    // --- Función de Acción ---
+    // Función que se llama al presionar el botón Ingresar o Done en teclado
     fun doLogin() {
-        keyboard?.hide()
+        keyboard?.hide() // Oculta el teclado
+        // Llama a la función login del ViewModel
         vm.login(ctx, email, pass) {
+            // onSuccess lambda: Navega a Home si el login es exitoso
             nav.navigate(NavRoutes.HOME) {
-                popUpTo(NavRoutes.LOGIN) { inclusive = true }
-                launchSingleTop = true
+                popUpTo(NavRoutes.LOGIN) { inclusive = true } // Limpia pantalla Login del backstack
+                launchSingleTop = true // Evita múltiples instancias de Home
             }
         }
     }
 
     // -----------------------------
-    // LAYOUT principal
+    // LAYOUT principal (Composable UI)
     // -----------------------------
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bg)
-            .padding(16.dp),
+    Box( // Contenedor principal que centra la tarjeta
+        modifier = Modifier.fillMaxSize().background(bg).padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        AnimatedVisibility(
-            visible = show,
-            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 3 }),
-            exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 3 })
-        ) {
+        // Muestra la tarjeta con animación de entrada
+        AnimatedVisibility(visible = show, enter = fadeIn() + slideInVertically { it / 3 }, exit = fadeOut() + slideOutVertically { it / 3 }) {
 
-            // --- Modificador dinámico de la Card
+            // Define el modificador de la tarjeta según el ancho de pantalla
+            val widthSizeClass = windowSizeClass.widthSizeClass
             val cardModifier = if (widthSizeClass == WindowWidthSizeClass.Compact) {
-                Modifier
-                    .offset(x = shakeOffset.value.dp)
-                    .fillMaxWidth(0.92f) // Ancho para teléfonos
-                    .shadow(10.dp, RoundedCornerShape(28.dp))
+                Modifier.offset(x = shakeOffset.value.dp).fillMaxWidth(0.92f).shadow(10.dp, RoundedCornerShape(28.dp))
             } else {
-                Modifier
-                    .offset(x = shakeOffset.value.dp)
-                    .width(480.dp) // Ancho fijo para tablets/landscape
-                    .shadow(10.dp, RoundedCornerShape(28.dp))
+                Modifier.offset(x = shakeOffset.value.dp).width(480.dp).shadow(10.dp, RoundedCornerShape(28.dp))
             }
 
+            // La tarjeta principal del formulario
             Card(
-                modifier = cardModifier, // <-- APLICAMOS EL MODIFICADOR DINÁMICO
+                modifier = cardModifier, // Aplica modificador con shake y ancho adaptativo
                 shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = cs.surface)
             ) {
+                // Columna interna con scroll para el contenido del formulario
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp, vertical = 24.dp)
-                        .verticalScroll(scroll),           // habilita scroll interno
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 24.dp).verticalScroll(scroll),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    // -----------------------------
-                    // Encabezado con branding
-                    // -----------------------------
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                brush = Brush.horizontalGradient(listOf(cs.primary, cs.secondary)),
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(vertical = 14.dp, horizontal = 12.dp)
+                    // --- Encabezado ---
+                    Box( // Box con fondo gradiente para el título
+                        modifier = Modifier.fillMaxWidth().background(brush = Brush.horizontalGradient(listOf(cs.primary, cs.secondary)), shape = RoundedCornerShape(20.dp)).padding(vertical = 14.dp, horizontal = 12.dp)
                     ) {
-                        Text(
-                            text = "GymTastic",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.SansSerif,
-                                letterSpacing = 1.5.sp
-                            ),
-                            color = Color.White,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Text(text = "GymTastic", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, fontFamily = FontFamily.SansSerif, letterSpacing = 1.5.sp), color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     }
-
                     Spacer(Modifier.height(10.dp))
-
-                    Text(
-                        "Bienvenido 👋\nInicia sesión para continuar",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = cs.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-
+                    Text("Bienvenido 👋\nInicia sesión para continuar", style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(24.dp))
 
-                    // -----------------------------
-                    // Campo: Email
-                    // -----------------------------
+                    // --- Campo Email ---
                     OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = { Text("Email") },
-                        singleLine = true,
-                        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = email.isNotBlank() && !isEmailValid,
-                        supportingText = {
-                            if (email.isNotBlank() && !isEmailValid)
-                                Text("Ingresa un email válido")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cs.primary,
-                            unfocusedBorderColor = cs.onSurface.copy(alpha = 0.3f),
-                            cursorColor = cs.primary
-                        ),
+                        value = email, onValueChange = { email = it; vm.clearError() }, // Limpia error al escribir
+                        label = { Text("Email") }, singleLine = true, leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                        isError = (email.isNotBlank() && !isEmailValid) || vm.error != null, // Marca error si formato inválido O si vm.error existe
+                        supportingText = { if (email.isNotBlank() && !isEmailValid) Text("Ingresa un email válido") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = cs.primary, unfocusedBorderColor = cs.onSurface.copy(alpha = 0.3f), cursorColor = cs.primary),
                         modifier = Modifier.fillMaxWidth(0.94f)
                     )
-
                     Spacer(Modifier.height(12.dp))
 
-                    // -----------------------------
-// Campo: Password (con toggle)
-// -----------------------------
+                    // --- Campo Contraseña ---
                     OutlinedTextField(
-                        value = pass,
-                        onValueChange = { pass = it },
-                        label = { Text("Contraseña") },
-                        singleLine = true,
-                        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                        trailingIcon = {
-                            IconButton(onClick = { passVisible = !passVisible }) {
-                                Icon(
-                                    imageVector = if (passVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                    contentDescription = if (passVisible) "Ocultar contraseña" else "Mostrar contraseña"
-                                )
-                            }
-                        },
+                        value = pass, onValueChange = { pass = it; vm.clearError() }, // Limpia error al escribir
+                        label = { Text("Contraseña") }, singleLine = true, leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
+                        trailingIcon = { IconButton(onClick = { passVisible = !passVisible }) { Icon(imageVector = if (passVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, contentDescription = if (passVisible) "Ocultar" else "Mostrar") } },
                         visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                if (!vm.loading && isEmailValid && isPassValid) doLogin()
-                            }
-                        ),
-                        isError = pass.isNotBlank() && !isPassValid,
-                        supportingText = {
-                            if (pass.isNotBlank() && !isPassValid)
-                                Text("Mínimo 6 caracteres")
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cs.primary,
-                            unfocusedBorderColor = cs.onSurface.copy(alpha = 0.3f),
-                            cursorColor = cs.primary
-                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { if (!vm.loading && isEmailValid && isPassValid) doLogin() }),
+                        isError = (pass.isNotBlank() && !isPassValid) || vm.error != null, // Marca error si largo inválido O si vm.error existe
+                        supportingText = { if (pass.isNotBlank() && !isPassValid) Text("Mínimo 6 caracteres") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = cs.primary, unfocusedBorderColor = cs.onSurface.copy(alpha = 0.3f), cursorColor = cs.primary),
                         modifier = Modifier.fillMaxWidth(0.94f)
                     )
+                    Spacer(Modifier.height(8.dp)) // Espacio reducido antes del mensaje de error/botones
 
-                    Spacer(Modifier.height(8.dp))
-
-
-
-// -----------------------------
-// Botón principal: Ingresar
-// -----------------------------
-                    Button(
-                        onClick = { doLogin() },
-                        enabled = !vm.loading && isEmailValid && isPassValid,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (!vm.loading && isEmailValid && isPassValid) cs.primary else cs.primary.copy(
-                                alpha = 0.6f
-                            ),
-                            contentColor = cs.onPrimary
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth(0.94f)
-                            .height(48.dp)
-                    ) {
-                        if (vm.loading) {
-                            CircularProgressIndicator(
-                                strokeWidth = 2.dp,
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .padding(end = 8.dp),
-                                color = cs.onPrimary
-                            )
-                        }
-                        Text(if (vm.loading) "Ingresando..." else "Ingresar")
+                    // ---  NUEVO: Mensaje de Error ---
+                    // Se muestra/oculta con animación si vm.error tiene un valor
+                    AnimatedVisibility(visible = vm.error != null) {
+                        Text(
+                            text = vm.error ?: "", // Muestra el mensaje de error del ViewModel
+                            color = cs.error, // Color rojo para errores
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(0.94f).padding(bottom = 8.dp) // Añade padding abajo
+                        )
                     }
+                    // --- FIN Mensaje de Error ---
 
+
+                    // --- Botón Ingresar ---
+                    Button(
+                        onClick = { doLogin() }, // Llama a la función de login
+                        enabled = !vm.loading && isEmailValid && isPassValid, // Habilitado si no carga y campos válidos
+                        colors = ButtonDefaults.buttonColors(containerColor = if (!vm.loading && isEmailValid && isPassValid) cs.primary else cs.primary.copy(alpha = 0.6f), contentColor = cs.onPrimary),
+                        modifier = Modifier.fillMaxWidth(0.94f).height(48.dp)
+                    ) { // Contenido del botón
+                        if (vm.loading) { // Muestra indicador si está cargando
+                            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp).padding(end = 8.dp), color = cs.onPrimary)
+                        }
+                        Text(if (vm.loading) "Ingresando..." else "Ingresar") // Texto cambia si carga
+                    }
                     Spacer(Modifier.height(10.dp))
 
-// -----------------------------
-// Botón secundario: Crear cuenta (mismo estilo que Ingresar)
-// -----------------------------
+                    // --- Botón Crear Cuenta ---
                     Button(
-                        onClick = { nav.navigate(NavRoutes.REGISTER) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = cs.primary,   // mismo color que "Ingresar"
-                            contentColor = cs.onPrimary
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth(0.94f)
-                            .height(48.dp)
+                        onClick = { nav.navigate(NavRoutes.REGISTER) }, // Navega a Registro
+                        colors = ButtonDefaults.buttonColors(containerColor = cs.primary, contentColor = cs.onPrimary), // Mismo estilo que Ingresar
+                        modifier = Modifier.fillMaxWidth(0.94f).height(48.dp)
                     ) {
                         Text("Crear cuenta")
                     }
-
-                    Spacer(Modifier.height(8.dp))
-
-
-                    Spacer(Modifier.height(16.dp))
-
+                    Spacer(Modifier.height(16.dp)) // Espacio final
                 }
             }
         }
     }
 }
+
+// --- Añadir función clearError a ViewModel ---
+// Debes añadir esta función a tu clase LoginViewModel

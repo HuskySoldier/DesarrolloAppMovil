@@ -44,7 +44,7 @@ fun PlanesScreen(
     val authPrefs = remember { ServiceLocator.auth(ctx).prefs() }
     val authEmail by authPrefs.userEmailFlow.collectAsStateWithLifecycle(initialValue = "")
 
-    // --- ❗️ PASO 1: Observar UserEntity desde DB ---
+    // ---  PASO 1: Observar UserEntity desde DB ---
     val usersDao = remember { GymTasticDatabase.get(ctx).users() }
     val userEntity by remember(authEmail) {
         if (authEmail.isNotBlank()) {
@@ -58,7 +58,7 @@ fun PlanesScreen(
     val planesFlow = remember { ServiceLocator.products(ctx).observePlanes() }
     val planes by planesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    // --- ❗️ PASO 2: Calcular días restantes y 'canBuy' desde UserEntity ---
+    // ---  PASO 2: Calcular días restantes y 'canBuy' desde UserEntity ---
     val thresholdDays = 3 // Días antes de expirar para poder renovar
     val remainingDays: Long? = remember(userEntity) {
         userEntity?.planEndMillis?.let { end ->
@@ -115,7 +115,7 @@ fun PlanesScreen(
             Text("Elige tu plan", style = MaterialTheme.typography.titleMedium, color = cs.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
 
-            // --- ❗️ PASO 3: Mostrar advertencia si hay plan activo y no puede renovar ---
+            // --- ️ PASO 3: Mostrar advertencia si hay plan activo y no puede renovar ---
             if (userEntity?.hasActivePlan == true && !canBuy) {
                 ElevatedCard(
                     colors = CardDefaults.elevatedCardColors(containerColor = cs.surfaceVariant),

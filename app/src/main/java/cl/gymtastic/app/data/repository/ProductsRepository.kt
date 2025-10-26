@@ -5,7 +5,7 @@ import androidx.room.withTransaction
 import cl.gymtastic.app.data.local.dao.ProductStockProjection
 import cl.gymtastic.app.data.local.db.GymTasticDatabase
 import cl.gymtastic.app.data.local.entity.CartItemEntity
-import cl.gymtastic.app.data.local.entity.ProductEntity // 👈 Importación añadida
+import cl.gymtastic.app.data.local.entity.ProductEntity //  Importación añadida
 
 // Excepción para informar faltantes sin tocar el carrito
 class InsufficientStockException(
@@ -38,10 +38,10 @@ class ProductsRepository(context: Context) {
     fun observePlanes() = dao.observePlanes()
     fun observeMerch() = dao.observeMerch()
 
-    // ✅ (opcional) obtener todo
+    // (opcional) obtener todo
     suspend fun getAll() = dao.getAll()
 
-    // ⬇️ Stock: lectura directa (útil si quieres mostrar disponibilidades)
+    //  Stock: lectura directa (útil si quieres mostrar disponibilidades)
     // Acepta Long (del carrito), llama al DAO con Int
     suspend fun getStockByIds(ids: List<Long>): List<ProductStockProjection> {
         if (ids.isEmpty()) return emptyList()
@@ -52,17 +52,17 @@ class ProductsRepository(context: Context) {
 
     // --- Funciones de Admin (Añadidas) ---
 
-    /**
-     * Guarda (inserta o actualiza) un producto.
-     */
+
+    //* Guarda (inserta o actualiza) un producto.
+
     suspend fun save(product: ProductEntity) {
         dao.save(product) // Asumiendo que dao.save() existe
     }
 
-    /**
-     * Elimina un producto.
-     * Asume que tu DAO tiene un método @Delete
-     */
+
+    //* Elimina un producto.
+    //* Asume que tu DAO tiene un método @Delete
+
     suspend fun delete(product: ProductEntity) {
         dao.delete(product) // Asumiendo que dao.delete() existe
     }
@@ -70,11 +70,11 @@ class ProductsRepository(context: Context) {
     // --- Fin Funciones de Admin ---
 
 
-    /**
-     * Reserva y descuenta stock de productos "merch" en una transacción.
-     * - Si alguno no tiene stock suficiente, lanza InsufficientStockException y NO descuenta nada.
-     * - Los items "plan" se ignoran aquí (no usan stock).
-     */
+
+    //* Reserva y descuenta stock de productos "merch" en una transacción.
+    // * - Si alguno no tiene stock suficiente, lanza InsufficientStockException y NO descuenta nada.
+    //* - Los items "plan" se ignoran aquí (no usan stock).
+
     suspend fun reserveAndDecrementMerchStock(
         items: List<CartItemEntity>,
         // Si ya tienes un map de tipos, puedes pasarlo para evitar tocar la DB de nuevo.

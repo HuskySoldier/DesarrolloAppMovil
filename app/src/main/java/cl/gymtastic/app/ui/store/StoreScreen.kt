@@ -173,10 +173,10 @@ private fun ProductCard(
         colors = CardDefaults.elevatedCardColors(containerColor = cs.surface),
         modifier = Modifier.fillMaxWidth()
     ) {
-        // --- ❗️ CAMBIO AQUÍ: Column con padding(0) para que la imagen toque el borde ---
+        // ---  CAMBIO AQUÍ: Column con padding(0) para que la imagen toque el borde ---
         Column(Modifier.padding(0.dp)) {
 
-            // --- ❗️ CAMBIO AQUÍ: Imagen del producto añadida ---
+            // ---  CAMBIO AQUÍ: Imagen del producto añadida ---
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(ctx)
                     .data(product.img) // Carga la URL del producto
@@ -214,7 +214,7 @@ private fun ProductCard(
                 }
             )
 
-            // --- ❗️ CAMBIO AQUÍ: Contenido de texto envuelto en padding ---
+            // ---  CAMBIO AQUÍ: Contenido de texto envuelto en padding ---
             Column(Modifier.padding(14.dp)) {
                 Text(
                     product.nombre,

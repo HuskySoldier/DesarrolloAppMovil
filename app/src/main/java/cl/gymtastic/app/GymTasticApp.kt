@@ -14,14 +14,12 @@ class GymTasticApp : Application() {
 
         // --- LÓGICA PARA PROGRAMAR EL WORKER MOVIDA AQUÍ ---
         setupDailyReminderWorker()
-        // --- FIN LÓGICA MOVIDA ---
 
-        // Aquí podrías añadir otras inicializaciones globales
     }
 
-    /**
-     * Configura y programa el Worker periódico para el recordatorio diario.
-     */
+
+    //* Configura y programa el Worker periódico para el recordatorio diario.
+
     private fun setupDailyReminderWorker() {
         val workManager = WorkManager.getInstance(applicationContext)
 

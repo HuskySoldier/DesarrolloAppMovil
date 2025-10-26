@@ -17,10 +17,6 @@ public final class TrainersRepository {
         return null;
     }
     
-    /**
-     * Guarda (inserta o actualiza) un trainer.
-     * (Parámetro renombrado de 'product' a 'trainer' para claridad)
-     */
     @org.jetbrains.annotations.Nullable()
     public final java.lang.Object save(@org.jetbrains.annotations.NotNull()
     cl.gymtastic.app.data.local.entity.TrainerEntity trainer, @org.jetbrains.annotations.NotNull()
@@ -28,10 +24,6 @@ public final class TrainersRepository {
         return null;
     }
     
-    /**
-     * Elimina un trainer.
-     * (Parámetro renombrado de 'product' a 'trainer' y comentario actualizado)
-     */
     @org.jetbrains.annotations.Nullable()
     public final java.lang.Object delete(@org.jetbrains.annotations.NotNull()
     cl.gymtastic.app.data.local.entity.TrainerEntity trainer, @org.jetbrains.annotations.NotNull()

@@ -4,6 +4,10 @@ import android.content.Context
 import cl.gymtastic.app.data.local.db.GymTasticDatabase
 import cl.gymtastic.app.data.local.entity.AttendanceEntity
 
+
+
+//Es el encargado de decidir cómo obtener o guardar los datos,
+// comunicándose con el DAO (el experto en base de datos) para realizar las operaciones necesarias.
 class AttendanceRepository(context: Context) {
     private val db = GymTasticDatabase.get(context)
 

@@ -14,18 +14,18 @@ class TrainersRepository(context: Context) {
     fun observeAll() = dao.observeAll()
     // fun observeAll() = db.trainers().observeAll() // <- Esta línea sobraba y causaba el conflicto
 
-    /**
-     * Guarda (inserta o actualiza) un trainer.
-     * (Parámetro renombrado de 'product' a 'trainer' para claridad)
-     */
+
+    //* Guarda (inserta o actualiza) un trainer.
+    //* (Parámetro renombrado de 'product' a 'trainer' para claridad)
+
     suspend fun save(trainer: TrainerEntity) {
         dao.save(trainer)
     }
 
-    /**
-     * Elimina un trainer.
-     * (Parámetro renombrado de 'product' a 'trainer' y comentario actualizado)
-     */
+
+    //* Elimina un trainer.
+    //* (Parámetro renombrado de 'product' a 'trainer' y comentario actualizado)
+
     suspend fun delete(trainer: TrainerEntity) {
         dao.delete(trainer)
     }

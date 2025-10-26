@@ -142,7 +142,7 @@ private fun TrainerCard(
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
 
-                // --- ❗️ CAMBIO: Mostrar imagen o fallback a iniciales ---
+                // --- ️ CAMBIO: Mostrar imagen o fallback a iniciales ---
                 SubcomposeAsyncImage(
                     model = trainer.img, // Carga la URI (String)
                     contentDescription = trainer.nombre,
@@ -252,4 +252,3 @@ private fun safeStart(ctx: android.content.Context, intent: Intent) {
         // Silencioso: no hay app que atienda el intent
     }
 }
-

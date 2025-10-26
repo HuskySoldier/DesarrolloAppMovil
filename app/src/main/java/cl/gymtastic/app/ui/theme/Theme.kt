@@ -4,7 +4,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// 🎨 Paleta
+//  Paleta
 val RedPrimary      = Color(0xFFD32F2F) // rojo
 val BlackBackground = Color(0xFF121212) // negro
 val GraySurface     = Color(0xFF2C2C2C) // gris oscuro (cards / sheets)

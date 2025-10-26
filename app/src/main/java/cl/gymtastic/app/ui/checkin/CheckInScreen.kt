@@ -59,7 +59,7 @@ fun CheckInScreen(
     // --- Sesión y Usuario ---
     val authPrefs = remember { ServiceLocator.auth(ctx).prefs() }
     val authEmail by authPrefs.userEmailFlow.collectAsStateWithLifecycle(initialValue = "")
-    // --- ❗️ YA NO NECESITAMOS userIdFlow NUMÉRICO ---
+    // ---  YA NO NECESITAMOS userIdFlow NUMÉRICO ---
     // val userId by authPrefs.userIdFlow.collectAsStateWithLifecycle(initialValue = -1) // Eliminado o comentado
 
     // --- Observar UserEntity desde DB (sin cambios) ---
@@ -75,7 +75,7 @@ fun CheckInScreen(
     // --- Flujo de Asistencia (depende de authEmail) ---
     val attendanceFlow = remember(authEmail) { // <-- Depende de authEmail ahora
         if (authEmail.isNotBlank()) { // <-- Solo observa si hay email
-            // --- ❗️ CAMBIO: Usar authEmail (String) ---
+            // --- CAMBIO: Usar authEmail (String) ---
             ServiceLocator.attendance(ctx).observe(authEmail)
         } else {
             flowOf(emptyList()) // Flow vacío si no hay email
@@ -126,7 +126,7 @@ fun CheckInScreen(
                 userEntity = userEntity,
                 hasOpenSession = hasOpen,
                 onCheckIn = {
-                    // --- ❗️ CAMBIO: Usar authEmail ---
+                    // ---  CAMBIO: Usar authEmail ---
                     Log.d("CheckInScreen", "Botón IN presionado. authEmail = $authEmail")
                     if (authEmail.isBlank()) { // <-- Validar email en lugar de userId
                         Log.w("CheckInScreen", "Check-In cancelado: authEmail vacío")
@@ -145,7 +145,7 @@ fun CheckInScreen(
                     }
                 },
                 onCheckOut = {
-                    // --- ❗️ CAMBIO: Usar authEmail ---
+                    // ---  CAMBIO: Usar authEmail ---
                     Log.d("CheckInScreen", "Botón OUT presionado. authEmail = $authEmail")
                     if (authEmail.isBlank()) { // <-- Validar email
                         Log.w("CheckInScreen", "Check-Out cancelado: authEmail vacío")

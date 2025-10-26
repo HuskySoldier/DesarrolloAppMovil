@@ -287,7 +287,7 @@ fun RegisterScreen(
                         ),
                         isError = pass.isNotBlank() && !isPassValid,
                         supportingText = {
-                            // 📌 Más espacio y contraste: barra + etiqueta + error, apilados
+                            //  Más espacio y contraste: barra + etiqueta + error, apilados
                             val (strengthColor, strengthLabel) = strengthColorAndLabel(passStrength)
                             Column(Modifier.fillMaxWidth()) {
                                 AnimatedVisibility(visible = pass.isNotBlank()) {
@@ -350,25 +350,13 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth(0.94f)
                     )
 
-                    Spacer(Modifier.height(12.dp))
-
-                    // ---------- Términos y privacidad ----------
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(0.94f)
-                    ) {
-                        Checkbox(
-                            checked = acceptTerms,
-                            onCheckedChange = { acceptTerms = it }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            "Acepto los Términos y la Política de Privacidad",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = cs.onSurfaceVariant
-                        )
-                    }
-
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        "Al registrarte aceptas los terminos y condiciones",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = cs.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
                     Spacer(Modifier.height(16.dp))
 
                     // ---------- Botón Registrar ----------

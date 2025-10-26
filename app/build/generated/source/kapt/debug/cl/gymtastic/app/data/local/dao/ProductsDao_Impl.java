@@ -196,7 +196,7 @@ public final class ProductsDao_Impl implements ProductsDao {
 
   @Override
   public Object insertAll(final List<ProductEntity> products,
-      final Continuation<? super Unit> $completion) {
+      final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -210,11 +210,11 @@ public final class ProductsDao_Impl implements ProductsDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object delete(final ProductEntity product, final Continuation<? super Unit> $completion) {
+  public Object delete(final ProductEntity product, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -228,12 +228,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
   public Object tryDecrementStock(final int id, final int qty,
-      final Continuation<? super Integer> $completion) {
+      final Continuation<? super Integer> arg2) {
     return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
@@ -258,11 +258,11 @@ public final class ProductsDao_Impl implements ProductsDao {
           __preparedStmtOfTryDecrementStock.release(_stmt);
         }
       }
-    }, $completion);
+    }, arg2);
   }
 
   @Override
-  public Object save(final ProductEntity product, final Continuation<? super Unit> $completion) {
+  public Object save(final ProductEntity product, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -276,12 +276,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
   public Object getStockByIds(final List<Integer> ids,
-      final Continuation<? super List<ProductStockProjection>> $completion) {
+      final Continuation<? super List<ProductStockProjection>> arg1) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT id, stock FROM products WHERE id IN (");
     final int _inputSize = ids.size();
@@ -328,11 +328,11 @@ public final class ProductsDao_Impl implements ProductsDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object getAll(final Continuation<? super List<ProductEntity>> $completion) {
+  public Object getAll(final Continuation<? super List<ProductEntity>> arg0) {
     final String _sql = "SELECT * FROM products";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
@@ -395,12 +395,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg0);
   }
 
   @Override
   public Object getByIds(final List<Integer> ids,
-      final Continuation<? super List<ProductEntity>> $completion) {
+      final Continuation<? super List<ProductEntity>> arg1) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM products WHERE id IN (");
     final int _inputSize = ids.size();
@@ -478,12 +478,12 @@ public final class ProductsDao_Impl implements ProductsDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
   public Object getNamesByIds(final List<Integer> ids,
-      final Continuation<? super List<ProductNameProjection>> $completion) {
+      final Continuation<? super List<ProductNameProjection>> arg1) {
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT id, nombre FROM products WHERE id IN (");
     final int _inputSize = ids.size();
@@ -530,7 +530,7 @@ public final class ProductsDao_Impl implements ProductsDao {
           _statement.release();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override

@@ -9,22 +9,12 @@ public final class ImageUriUtils {
         super();
     }
     
-    /**
-     * Crea una URI temporal en el caché para guardar una foto de la cámara.
-     * (Esta es la función que ya tenías)
-     */
     @org.jetbrains.annotations.NotNull()
     public final android.net.Uri createTempImageUri(@org.jetbrains.annotations.NotNull()
     android.content.Context context) {
         return null;
     }
     
-    /**
-     * (NUEVA FUNCIÓN - Requerida por AdminScreen)
-     * Copia el contenido de una URI (ej. de la galería) al almacenamiento interno
-     * de la app, dándole un permiso permanente.
-     * Devuelve la URI (como String) del archivo copiado.
-     */
     @org.jetbrains.annotations.Nullable()
     public final java.lang.String copyUriToInternalStorage(@org.jetbrains.annotations.NotNull()
     android.content.Context context, @org.jetbrains.annotations.NotNull()
@@ -33,11 +23,6 @@ public final class ImageUriUtils {
         return null;
     }
     
-    /**
-     * (NUEVA FUNCIÓN - Requerida por AdminScreen)
-     * Elimina un archivo del almacenamiento interno usando su URI (String)
-     * Importante para limpiar imágenes cuando se borra o cambia un producto.
-     */
     public final boolean deleteFileFromInternalStorage(@org.jetbrains.annotations.Nullable()
     java.lang.String uriString) {
         return false;
