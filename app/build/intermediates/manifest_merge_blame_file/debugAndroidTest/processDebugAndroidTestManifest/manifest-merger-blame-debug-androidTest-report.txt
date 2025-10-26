@@ -3,32 +3,32 @@
 3    package="cl.gymtastic.app.test" >
 4
 5    <uses-sdk
-5-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:5:5-74
+5-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:5:5-74
 6        android:minSdkVersion="24"
-6-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:5:15-41
+6-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:5:15-41
 7        android:targetSdkVersion="34" />
-7-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:5:42-71
+7-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:5:42-71
 8
 9    <instrumentation
-9-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:11:5-15:66
+9-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:11:5-15:66
 10        android:name="android.test.InstrumentationTestRunner"
-10-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:11:22-75
+10-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:11:22-75
 11        android:functionalTest="false"
-11-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:14:22-52
+11-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:14:22-52
 12        android:handleProfiling="false"
-12-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:13:22-53
+12-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:13:22-53
 13        android:label="Tests for cl.gymtastic.app"
-13-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:15:22-64
+13-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:15:22-64
 14        android:targetPackage="cl.gymtastic.app" />
-14-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:12:22-62
+14-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:12:22-62
 15
 16    <application
-16-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:7:5-9:19
+16-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:7:5-9:19
 17        android:debuggable="true"
 18        android:extractNativeLibs="false" >
 19        <uses-library android:name="android.test.runner" />
-19-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:8:9-60
-19-->D:\DescargasBrave\GymTasticApp_NoViewModelScopeIssues\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest7989022141050917673.xml:8:23-57
+19-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:8:9-60
+19-->D:\GymTasticApp\GymTasticApp\app\build\intermediates\tmp\manifest\androidTest\debug\tempFile1ProcessTestManifest16659504390459601967.xml:8:23-57
 20    </application>
 21
 22</manifest>
